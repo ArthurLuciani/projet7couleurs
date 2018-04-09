@@ -38,19 +38,26 @@ void generate_aleat_board(char* board)
         char nb = rand_a_b('A', 'G'+1);
         board[i] = nb;
     }
-    set_cell(0, 29, 'V');
-    set_cell(29, 0, '^');
+    set_cell(0, BOARD_SIZE-1, 'V');
+    set_cell(BOARD_SIZE-1, 0, '^');
 }
 
-char colorselect()
+char colorselect(char* board)
 {
-    char color
+    // joueur humain
+    char color;
     do
     {
-        printf("Selectionnez une couleur");
+        printf("Selectionnez une couleur : ");
         scanf("%c", &color);
-    }while(color < 'A' || color > 'G')
+    }while(color < 'A' || color > 'G');
     return color;
+}
+
+char alea_computer(char* board)
+{
+    // joueur aleatoire
+    return rand_a_b('A', 'G'+1);
 }
 
 /** Prints the current state of the board on screen
@@ -68,19 +75,13 @@ void print_board(void)
         printf("\n");
     }
 }
-void select_players(char* players_tab)
-{
-//modifie le tableau des joueurs
-//players_tab sera alors un tableau de pointeus vers fonction 
-    
-}
 
 
-int recursive_update (int position_x, int position_y char* board, char player, char color, int changement)
+int recursive_update (int position_x, int position_y, char* board, char player, char color, int changement)
 {
-	for (int k=0, k<2;k++)
+	for (int k=0; k<2;k++)
 	{
-		for (int l=0, l<2,l++)
+		for (int l=0; l<2;l++)
 		{
 			if (((position_x-1+2*k)>=0) && ((position_x-1+2*k)< BOARD_SIZE) && ((position_y-1+2*l)>=0) && ((position_y-1+2*l)<BOARD_SIZE))
 				if (get_cell(position_x-1+2*k,position_y-1+2*l)=color)
@@ -120,10 +121,45 @@ int board_update_recu(char* board, char player, char color)
 			}
 		}
 	}
-	
     return nb_changement;
 }
 
+void select_players(void* players_tab); 
+{
+    //modifie le tableau des joueurs
+    //players_tab sera alors un tableau de pointeus vers fonction
+    printf("Sélectionnez les joueurs\n1 : humain\n2 : aleatoire\n3 : opti1\n4 : opti2\n5 : hegemonique\n");
+    printf("Joueur1 : ")
+    char j1;
+    scanf("%d",%j1);
+    printf("Joueur2 : ")
+    char j2;
+    scanf("%d",%j1);
+    for(int i = 0; i<2; i++)
+    {
+        switch(j1)
+        {
+        case 1 :
+            palyers_tab[i] = colorselect;
+            break;
+        case 2 :
+            players_tab[i] = alea_computer;
+            break;
+        case 3 :
+            players_tab[i] = opti1;
+            break;
+        case 4 :
+            players_tab[i] = opti2;
+            break;
+        case 5 :
+            palyers_select[i] = hegemonique;
+            break;
+        default :
+            palyers_tab[i] = colorselect;
+            break;
+        }
+    }
+}
 
 
 /** Program entry point */
@@ -137,8 +173,9 @@ int main(void)
     int victory = 0;
     int count1 = 0;
     int count2 = 0;
-    char (*players_tab[2])(char*)
+    char (*players_tab[2])(char*);
+    select_players(players_tab);
     print_board();
-
+    
     return 0; // Everything went well
 }
