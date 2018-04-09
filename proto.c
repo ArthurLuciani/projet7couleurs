@@ -17,6 +17,7 @@ int board_update(char* board, char player, char color)
 int board_update_recu(char* board, char player, char color)
 {
     //retourne le nombre de cases prises par le coup (récu)
+    //modifie board
     return;
 }
 
@@ -46,13 +47,15 @@ void set_cell(int x, int y, char color)
  * SDL/allegro, but this is not really the purpose of this assignment.
  */
 
-char color_alea();
+char color_alea(void);
 
 void print_board(void)
 {
     ;
 }
-
+void select_players(void* players_tab); 
+//modifie le tableau des joueurs
+//players_tab sera alors un tableau de pointeus vers fonction
 
 /** Program entry point */
 int main(void)

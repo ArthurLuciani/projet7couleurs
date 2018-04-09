@@ -1,7 +1,8 @@
 /* Template of the 7 wonders of the world of the 7 colors assigment. */
 
 #include <stdio.h>     /* printf */
-
+#include <time.h> 
+#include <stdlib.h>
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
 
@@ -13,6 +14,11 @@
  */
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
 
+char rand_a_b(char a, char b)
+{
+    return rand()%(b-a) +a;
+}
+
 /** Retrieves the color of a given board cell */
 char get_cell(int x, int y)
 {
@@ -23,6 +29,35 @@ char get_cell(int x, int y)
 void set_cell(int x, int y, char color)
 {
     board[y * BOARD_SIZE + x] = color;
+}
+
+void generate_aleat_board(char* board)
+{
+    for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
+    {
+        char nb = rand_a_b('A', 'G'+1);
+        board[i] = nb;
+    }
+    set_cell(0, BOARD_SIZE-1, 'V');
+    set_cell(BOARD_SIZE-1, 0, '^');
+}
+
+char colorselect(char* board)
+{
+    // joueur humain
+    char color;
+    do
+    {
+        printf("Selectionnez une couleur : ");
+        scanf("%c", &color);
+    }while(color < 'A' || color > 'G');
+    return color;
+}
+
+char alea_computer(char* board)
+{
+    // joueur aleatoire
+    return rand_a_b('A', 'G'+1);
 }
 
 /** Prints the current state of the board on screen
@@ -87,6 +122,7 @@ int board_update_recu(char* board, char player, char color)
 		for (int j=0; j<BOARD_SIZE;j++)
 		{
 			if (get_cell(i,j)== color)
+		
 			{
 				if ((i-1)>=0) 
 				{
@@ -119,19 +155,62 @@ int board_update_recu(char* board, char player, char color)
 			}
 		}
 	}
+	
     return nb_changement;
 }
 
+void select_players(void* players_tab); 
+{
+    //modifie le tableau des joueurs
+    //players_tab sera alors un tableau de pointeus vers fonction
+    printf("Sélectionnez les joueurs\n1 : humain\n2 : aleatoire\n3 : opti1\n4 : opti2\n5 : hegemonique\n");
+    printf("Joueur1 : ")
+    char j1;
+    scanf("%d",%j1);
+    printf("Joueur2 : ")
+    char j2;
+    scanf("%d",%j1);
+    for(int i = 0; i<2; i++)
+    {
+        switch(j1)
+        {
+        case 1 :
+            palyers_tab[i] = colorselect;
+            break;
+        case 2 :
+            players_tab[i] = alea_computer;
+            break;
+        case 3 :
+            players_tab[i] = opti1;
+            break;
+        case 4 :
+            players_tab[i] = opti2;
+            break;
+        case 5 :
+            palyers_select[i] = hegemonique;
+            break;
+        default :
+            palyers_tab[i] = colorselect;
+            break;
+        }
+    }
+}
 
 
 /** Program entry point */
 int main(void)
 {
+    srand(time(NULL));
     printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
-
+    generate_aleat_board(board);
+    int victory = 0;
+    int count1 = 0;
+    int count2 = 0;
+    char (*players_tab[2])(char*);
+    select_players(players_tab);
     print_board();
-
+    
     return 0; // Everything went well
 }
