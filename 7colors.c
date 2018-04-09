@@ -41,21 +41,41 @@ void print_board(void)
     }
 }
 
-int recursive_update (int position_x, int position_y char* board, char player, char color, int changement)
+int recursive_update (int position_x, int position_y, char* board, char player, char color, int nb_changement)
 {
-	for (int k=0, k<2;k++)
+	if ((position_x-1)>=0) 
 	{
-		for (int l=0, l<2,l++)
+		if (get_cell(position_x-1,position_y)==color)
 		{
-			if (((position_x-1+2*k)>=0) && ((position_x-1+2*k)< BOARD_SIZE) && ((position_y-1+2*l)>=0) && ((position_y-1+2*l)<BOARD_SIZE))
-				if (get_cell(position_x-1+2*k,position_y-1+2*l)=color)
-					{
-						set_cell(position_x-1+2*k,position_y-1+2*l,player)
-						changement=recursive_update(board,player,color, changement)+1;
-					}
+			set_cell(position_x-1,position_y,player);
+			nb_changement = recursive_update(position_x-1,position_y,board,player,color,nb_changement)+1;
 		}
 	}
-	return changement 
+	if ((position_x+1)< BOARD_SIZE) 
+	{
+		if (get_cell(position_x+1,position_y)==color)
+		{
+			set_cell(position_x+1,position_y,player);
+			nb_changement = recursive_update(position_x+1,position_y,board,player,color,nb_changement)+1;
+		}
+	}
+	if ((position_y-1)>=0)  
+		{
+			if (get_cell(position_x,position_y-1)==color)
+			{
+				set_cell(position_x,position_y-1,player);
+				nb_changement = recursive_update(position_x,position_y-1,board,player,color,nb_changement)+1;
+			}
+		}
+	if ((position_y+1)<BOARD_SIZE)
+		{
+			if (get_cell(position_x,position_y+1)==color)
+			{
+				set_cell(position_x,position_y+1,player);
+				nb_changement = recursive_update(position_x,position_y-1,board,player,color,nb_changement)+1;
+			}
+		}
+	return nb_changement;
 }
 
 
@@ -67,25 +87,38 @@ int board_update_recu(char* board, char player, char color)
 		for (int j=0; j<BOARD_SIZE;j++)
 		{
 			if (get_cell(i,j)== color)
-		
 			{
-				for (int k=0, k<2;k++)
+				if ((i-1)>=0) 
 				{
-					for (int l=0, l<2,l++)
+					if (get_cell(i-1,j)==player)
 					{
-						if (((i-1+2*k)>=0) && ((i-1+2*k)< BOARD_SIZE) && ((j-1+2*l)>=0) && ((j-1+2*l)<BOARD_SIZE))
-						{
-							if (get_cell(i-1+2*k,j-1+2*l)=player)
-							{
-							nb_changement = recursive_update(board,player,color,0);
-							}
-						}
+						nb_changement = recursive_update(i,j,board,player,color,0);
+					}
+				}
+			if ((i+1)< BOARD_SIZE) 
+			{
+				if (get_cell(i+1,j)==player)
+				{
+				nb_changement = recursive_update(i,j,board,player,color,0);
+				}
+			}
+			if ((j-1)>=0)  
+				{
+				if (get_cell(i,j-1)==player)
+				{
+					nb_changement = recursive_update(i,j,board,player,color,0);
+				}
+				}
+			if ((j+1)<BOARD_SIZE)
+				{
+					if (get_cell(i,j-1)==player)
+					{
+						nb_changement = recursive_update(i,j,board,player,color,0);
 					}
 				}
 			}
 		}
 	}
-	
     return nb_changement;
 }
 
