@@ -76,6 +76,56 @@ void select_players(char* players_tab)
 }
 
 
+int recursive_update (int position_x, int position_y char* board, char player, char color, int changement)
+{
+	for (int k=0, k<2;k++)
+	{
+		for (int l=0, l<2,l++)
+		{
+			if (((position_x-1+2*k)>=0) && ((position_x-1+2*k)< BOARD_SIZE) && ((position_y-1+2*l)>=0) && ((position_y-1+2*l)<BOARD_SIZE))
+				if (get_cell(position_x-1+2*k,position_y-1+2*l)=color)
+					{
+						set_cell(position_x-1+2*k,position_y-1+2*l,player)
+						changement=recursive_update(board,player,color, changement)+1;
+					}
+		}
+	}
+	return changement 
+}
+
+
+int board_update_recu(char* board, char player, char color)
+{
+	int nb_changement=0;
+	for (int i=0; i<BOARD_SIZE;i++)
+	{
+		for (int j=0; j<BOARD_SIZE;j++)
+		{
+			if (get_cell(i,j)== color)
+		
+			{
+				for (int k=0, k<2;k++)
+				{
+					for (int l=0, l<2,l++)
+					{
+						if (((i-1+2*k)>=0) && ((i-1+2*k)< BOARD_SIZE) && ((j-1+2*l)>=0) && ((j-1+2*l)<BOARD_SIZE))
+						{
+							if (get_cell(i-1+2*k,j-1+2*l)=player)
+							{
+							nb_changement = recursive_update(board,player,color,0);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+    return nb_changement;
+}
+
+
+
 /** Program entry point */
 int main(void)
 {
