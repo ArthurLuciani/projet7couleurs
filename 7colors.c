@@ -49,6 +49,7 @@ char colorselect(char* board)
     do
     {
         printf("Selectionnez une couleur : ");
+        printf("\n");
         scanf("%c", &color);
     }while(color < 'A' || color > 'G');
     return color;
@@ -128,48 +129,51 @@ int board_update_recu(char* board, char player, char color)
 				{
 					if (get_cell(i-1,j)==player)
 					{
-						nb_changement = recursive_update(i,j,board,player,color,0);
+						nb_changement = recursive_update(i,j,board,player,color,0)+1;
+						set_cell(i,j,player);
 					}
 				}
-			if ((i+1)< BOARD_SIZE) 
-			{
-				if (get_cell(i+1,j)==player)
+				if ((i+1)< BOARD_SIZE) 
 				{
-				nb_changement = recursive_update(i,j,board,player,color,0);
+					if (get_cell(i+1,j)==player)
+					{
+					nb_changement = recursive_update(i,j,board,player,color,0)+1;
+					set_cell(i,j,player);
+					}
 				}
-			}
-			if ((j-1)>=0)  
-				{
-				if (get_cell(i,j-1)==player)
-				{
-					nb_changement = recursive_update(i,j,board,player,color,0);
-				}
-				}
-			if ((j+1)<BOARD_SIZE)
-				{
+				if ((j-1)>=0)  
+					{
 					if (get_cell(i,j-1)==player)
 					{
-						nb_changement = recursive_update(i,j,board,player,color,0);
+						nb_changement = recursive_update(i,j,board,player,color,0)+1;
+						set_cell(i,j,player);
 					}
-				}
+					}
+				if ((j+1)<BOARD_SIZE)
+					{
+						if (get_cell(i,j+1)==player)
+						{
+							nb_changement = recursive_update(i,j,board,player,color,0)+1;
+							set_cell(i,j,player);
+						}
+					}
 			}
 		}
 	}
-	
-    return nb_changement;
+	return nb_changement;
 }
 
-void select_players(void* players_tab); 
+/*void select_players(char* players_tab)
 {
     //modifie le tableau des joueurs
-    //players_tab sera alors un tableau de pointeus vers fonction
+    //players_tab sera alors un tableau de pointeur vers fonction
     printf("Sélectionnez les joueurs\n1 : humain\n2 : aleatoire\n3 : opti1\n4 : opti2\n5 : hegemonique\n");
-    printf("Joueur1 : ")
+    printf("Joueur1 : ");
     char j1;
-    scanf("%d",%j1);
-    printf("Joueur2 : ")
+    scanf("%d",j1);
+    printf("Joueur2 : ");
     char j2;
-    scanf("%d",%j1);
+    scanf("%d",j1);
     for(int i = 0; i<2; i++)
     {
         switch(j1)
@@ -205,12 +209,36 @@ int main(void)
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
     generate_aleat_board(board);
-    int victory = 0;
-    int count1 = 0;
-    int count2 = 0;
-    char (*players_tab[2])(char*);
-    select_players(players_tab);
     print_board();
+
+    int victory = 0;
+    int count1 = 1;
+    int count2 = 1;
+    char color;
+    /*char (*players_tab[2])(char*);
+    select_players(players_tab);*/
+    
+    while (victory==0)
+    {
+		color=colorselect(board);
+		printf("%c \n",color);
+		count1=board_update_recu(board,'V',color)+count1;
+		print_board();
+		printf("le nombre de case est %d \n",count1);
+		if (count1>45)
+		{ 
+			victory=1;
+		}
+    
+		color=colorselect(board);
+		count2=board_update_recu(board,'^',color)+count2;
+		print_board();
+		printf("le nombre de case est %d \n",count2);
+		if (count2>45)
+		{ 
+			victory=1;
+		}
+    }
     
     return 0; // Everything went well
 }
