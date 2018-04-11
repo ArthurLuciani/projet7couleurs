@@ -38,7 +38,7 @@ void generate_aleat_board(char* board)
         char nb = rand_a_b('A', 'G'+1);
         board[i] = nb;
     }
-    set_cell(0, BOARD_SIZE-1, 'V');
+    set_cell(0, BOARD_SIZE-1, '.');
     set_cell(BOARD_SIZE-1, 0, '^');
 }
 
@@ -77,40 +77,42 @@ void print_board(void)
     }
 }
 
-int recursive_update (int position_x, int position_y, char* board, char player, char color, int nb_changement)
+int recursive_update (int position_x, int position_y, char* board, char player, char color)
 {
+    set_cell(position_x,position_y,player);
+    int nb_changement = 1;
 	if ((position_x-1)>=0) 
 	{
 		if (get_cell(position_x-1,position_y)==color)
 		{
-			set_cell(position_x-1,position_y,player);
-			nb_changement = recursive_update(position_x-1,position_y,board,player,color,nb_changement)+1;
+			//set_cell(position_x-1,position_y,player);
+			nb_changement += recursive_update(position_x-1,position_y,board,player,color);
 		}
 	}
 	if ((position_x+1)< BOARD_SIZE) 
 	{
 		if (get_cell(position_x+1,position_y)==color)
 		{
-			set_cell(position_x+1,position_y,player);
-			nb_changement = recursive_update(position_x+1,position_y,board,player,color,nb_changement)+1;
+			//set_cell(position_x+1,position_y,player);
+			nb_changement += recursive_update(position_x+1,position_y,board,player,color);
 		}
 	}
 	if ((position_y-1)>=0)  
-		{
-			if (get_cell(position_x,position_y-1)==color)
-			{
-				set_cell(position_x,position_y-1,player);
-				nb_changement = recursive_update(position_x,position_y-1,board,player,color,nb_changement)+1;
-			}
-		}
+    {
+        if (get_cell(position_x,position_y-1)==color)
+        {
+            //set_cell(position_x,position_y-1,player);
+            nb_changement += recursive_update(position_x,position_y-1,board,player,color);
+        }
+    }
 	if ((position_y+1)<BOARD_SIZE)
-		{
-			if (get_cell(position_x,position_y+1)==color)
-			{
-				set_cell(position_x,position_y+1,player);
-				nb_changement = recursive_update(position_x,position_y-1,board,player,color,nb_changement)+1;
-			}
-		}
+    {
+        if (get_cell(position_x,position_y+1)==color)
+        {
+            //set_cell(position_x,position_y+1,player);
+            nb_changement += recursive_update(position_x,position_y-1,board,player,color);
+        }
+    }
 	return nb_changement;
 }
 
@@ -118,64 +120,51 @@ int recursive_update (int position_x, int position_y, char* board, char player, 
 int board_update_recu(char* board, char player, char color)
 {
 	int nb_changement=0;
-	for (int i=0; i<BOARD_SIZE;i++)
+	for (int i=0; i<BOARD_SIZE; i++)
 	{
-		for (int j=0; j<BOARD_SIZE;j++)
+		for (int j=0; j<BOARD_SIZE; j++)
 		{
 			if (get_cell(i,j)== color)
-		
 			{
-            if ((i-1)>=0) 
-			{
-				if (get_cell(i-1,j)==player)
-				{
-					nb_changement = recursive_update(i,j,board,player,color,0);
+                if ((i-1)>=0) 
+                {
+                    if (get_cell(i-1,j)==player)
+                    {
+                        nb_changement += recursive_update(i,j,board,player,color);
+                        continue;
+                    }
                 }
-            }
-			if ((i+1)< BOARD_SIZE) 
-			{
-				if (get_cell(i+1,j)==player)
-				{
-				nb_changement = recursive_update(i,j,board,player,color,0);
-				}
+                if ((i+1)< BOARD_SIZE) 
+                {
+                    if (get_cell(i+1,j)==player)
+                    {
+                        nb_changement += recursive_update(i,j,board,player,color);
+                        continue;
+                    }
+                }
 				if ((j-1)>=0)  
-					{
-					if (get_cell(i,j-1)==player)
-					{
-						nb_changement = recursive_update(i,j,board,player,color,0)+1;
-						set_cell(i,j,player);
-					}
-					}
-				if ((j+1)<BOARD_SIZE)
-					{
-						if (get_cell(i,j+1)==player)
-						{
-							nb_changement = recursive_update(i,j,board,player,color,0)+1;
-							set_cell(i,j,player);
-						}
-					}
-			}
-			if ((j-1)>=0)  
-				{
-				if (get_cell(i,j-1)==player)
-				{
-					nb_changement = recursive_update(i,j,board,player,color,0);
-				}
-            }
-			if ((j+1)<BOARD_SIZE)
-			{
-				if (get_cell(i,j-1)==player)
-				{
-					nb_changement = recursive_update(i,j,board,player,color,0);
-				}
-			}
+                {
+                    if (get_cell(i,j-1)==player)
+                    {
+                        nb_changement += recursive_update(i,j,board,player,color);
+                        continue;
+                    }
+                }
+                if ((j+1)<BOARD_SIZE)
+                {
+                    if (get_cell(i,j+1)==player)
+                    {
+                        nb_changement += recursive_update(i,j,board,player,color);
+                        continue;
+                    }
+                }              
             }
         }
     }
-	
-    return nb_changement;
+	return nb_changement;
 }
 
+/*
 char *(*select_players(void))(char*)
 {
     //modifie le tableau des joueurs
@@ -197,7 +186,7 @@ char *(*select_players(void))(char*)
         case 2 :
             players_tab[i] = alea_computer;
             break;
-            /*
+            
         case 3 :
             players_tab[i] = opti1;
             break;
@@ -207,7 +196,7 @@ char *(*select_players(void))(char*)
         case 5 :
             palyers_select[i] = hegemonique;
             break;
-            */
+            
         default :
             palyers_tab[i] = colorselect;
             break;
@@ -215,7 +204,7 @@ char *(*select_players(void))(char*)
     }
     return players_tab;
 }
-
+*/
 
 /** Program entry point */
 int main(void)
@@ -237,8 +226,8 @@ int main(void)
     while (victory==0)
     {
 		color=colorselect(board);
-		printf("%c \n",color);
-		count1=board_update_recu(board,'V',color)+count1;
+		printf("_%c_ \n",color);
+		count1=board_update_recu(board,'.',color)+count1;
 		print_board();
 		printf("le nombre de case est %d \n",count1);
 		if (count1>45)
@@ -247,6 +236,7 @@ int main(void)
 		}
     
 		color=colorselect(board);
+        printf("_%c_ \n",color);
 		count2=board_update_recu(board,'^',color)+count2;
 		print_board();
 		printf("le nombre de case est %d \n",count2);
