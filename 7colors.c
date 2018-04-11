@@ -3,8 +3,11 @@
 #include <stdio.h>     /* printf */
 #include <time.h> 
 #include <stdlib.h>
+#include <unistd.h> 
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
+#define P1_COLOR '.'
+#define P2_COLOR '*'
 
 /** Represent the actual current board game
  *
@@ -13,6 +16,7 @@
  *     For this first assignment, no dinosaure will get you if you do that.
  */
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
+char temp_board[BOARD_SIZE * BOARD_SIZE];
 
 char rand_a_b(char a, char b)
 {
@@ -38,8 +42,8 @@ void generate_aleat_board(char* board)
         char nb = rand_a_b('A', 'G'+1);
         board[i] = nb;
     }
-    set_cell(board, 0, BOARD_SIZE-1, '.');
-    set_cell(board, BOARD_SIZE-1, 0, '^');
+    set_cell(board, 0, BOARD_SIZE-1, P1_COLOR);
+    set_cell(board, BOARD_SIZE-1, 0, P2_COLOR);
 }
 
 
@@ -54,7 +58,7 @@ void print_board(char* board)
     int i, j;
     for (i = 0; i < BOARD_SIZE; i++) {
         for (j = 0; j < BOARD_SIZE; j++) {
-            printf("%c", get_cell(board, i, j));
+            printf("%c ", get_cell(board, i, j));
         }
         printf("\n");
     }
@@ -156,7 +160,8 @@ int get_perimeter_size(char* board, char player)
 			{
                 if ((i-1)>=0) 
                 {
-                    if (get_cell(board,i-1,j)!=player && 
+                    if (get_cell(board,i-1,j)!=P1_COLOR &&
+                        get_cell(board,i-1,j)!=P2_COLOR &&
                         get_cell(board,i-1,j)!= '0')
                     {
                         perimeter += 1;
@@ -165,7 +170,8 @@ int get_perimeter_size(char* board, char player)
                 }
                 if ((i+1)< BOARD_SIZE) 
                 {
-                    if (get_cell(board,i+1,j)!=player && 
+                    if (get_cell(board,i+1,j)!=P1_COLOR &&
+                        get_cell(board,i+1,j)!=P2_COLOR && 
                         get_cell(board,i+1,j)!= '0')
                     {
                         perimeter += 1;
@@ -174,7 +180,8 @@ int get_perimeter_size(char* board, char player)
                 }
 				if ((j-1)>=0)  
                 {
-                    if (get_cell(board,i,j-1)!=player && 
+                    if (get_cell(board,i,j-1)!=P1_COLOR &&
+                        get_cell(board,i,j-1)!=P2_COLOR && 
                         get_cell(board,i,j-1)!= '0')
                     {
                         perimeter += 1;
@@ -183,7 +190,8 @@ int get_perimeter_size(char* board, char player)
                 }
                 if ((j+1)<BOARD_SIZE)
                 {
-                    if (get_cell(board,i,j+1)!=player && 
+                    if (get_cell(board,i,j+1)!=P1_COLOR &&
+                        get_cell(board,i,j+1)!=P2_COLOR && 
                         get_cell(board,i,j+1)!= '0')
                     {
                         perimeter += 1;
@@ -265,13 +273,14 @@ char hegemonique(char* board, char player)
 {
     // implémentation du joueur hegemonique (augmentation du périmètre)
     int best_perimeter = 0;
-    char best_color = 'A';// couleur par defaut
-    int perimeter;
-    char temp_board[BOARD_SIZE*BOARD_SIZE] = {0};
+    char best_color = alea_computer(board, player);// couleur par defaut
+    int perimeter = 0;
+    printf("\n---------------test----------------\n");
+    //------char temp_board[BOARD_SIZE * BOARD_SIZE];
     for(char color = 'A'; color <= 'G'; color++)
     {
         // on crée un plateau temporaire de test
-
+        //------printf("\n----color : %c ------\n", color);
         for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
         {
             temp_board[i] = board[i];
@@ -283,10 +292,11 @@ char hegemonique(char* board, char player)
         {
             best_perimeter = perimeter;
             best_color = color;
+            //print_board(temp_board);
         }
     }
     // print_board(temp_board);
-    printf("\nLa meilleur couleur est %c pour un perimetre de %d\n",best_color, best_perimeter);
+    printf("\nLa meilleur couleur pour %c est %c pour un perimetre de %d\n",player, best_color, best_perimeter);
     return best_color;
 }
 
@@ -307,28 +317,30 @@ int main(void)
     char color;
     /*char (*players_tab[2])(char*);
     select_players(players_tab);*/
-    
-    while (victory==0)
+    int k = 0;
+    while (victory==0 && k<40)
     {
-		color=colorselect(board, '.');
+        k++;
+		color=hegemonique(board, P1_COLOR);
 		printf("_%c_ \n",color);
-		count1=board_update_recu(board,'.',color)+count1;
+		count1 += board_update_recu(board, P1_COLOR, color);
 		print_board(board);
 		printf("le nombre de case est %d \n",count1);
-		if (count1>45)
+		if (count1>(BOARD_SIZE*BOARD_SIZE/2))
 		{ 
 			victory=1;
 		}
     
-		color = hegemonique(board, '^');
+		color = hegemonique(board, P2_COLOR);
         printf("_%c_ \n",color);
-		count2=board_update_recu(board,'^',color)+count2;
+		count2 += board_update_recu(board, P2_COLOR, color);
 		print_board(board);
 		printf("le nombre de case est %d \n",count2);
-		if (count2>45)
+		if (count2>(BOARD_SIZE*BOARD_SIZE/2))
 		{ 
 			victory=1;
 		}
+        //sleep(1);
     }
     
     return 0; // Everything went well
