@@ -42,56 +42,7 @@ void generate_aleat_board(char* board)
     set_cell(board, BOARD_SIZE-1, 0, '^');
 }
 
-int get_perimeter_size(char* board, char player):
-{
-      int perimeter = 0;
-      for()  
-}
 
-
-
-char colorselect(char* board, char player)
-{
-    // joueur humain
-    char color;
-    do
-    {
-        printf("Selectionnez une couleur : ");
-        printf("\n");
-        scanf("%c", &color);
-    }while(color < 'A' || color > 'G');
-    return color;
-}
-
-char alea_computer(char* board, char player)
-{
-    // joueur aleatoire
-    return rand_a_b('A', 'G'+1);
-}
-
-char hegemonique(char* board, char player)
-{
-    // implémentation du joueur hegemonique (augmentation du périmètre)
-    int best_perimeter = 0;
-    char best_color = 'A';// couleur par defaut
-    for(char color = 'A'; color <= 'G'; color++)
-    {
-        // on crée un plateau temporaire de test
-        char* temp_board;
-        for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
-        {
-            temp_board[i] = board[i];
-        }
-        board_update_recu(temp_board, player, color);
-        // detection du perimetre
-        int perimeter = get_perimeter_size(temp_board, player);
-        if (perimeter > best_perimeter)
-        {
-            best_perimeter = perimeter;
-            best_color = color;
-        }
-    }
-}
 
 /** Prints the current state of the board on screen
  *
@@ -194,6 +145,59 @@ int board_update_recu(char* board, char player, char color)
 	return nb_changement;
 }
 
+int get_perimeter_size(char* board, char player)
+{
+    int perimeter = 0;
+	for (int i=0; i<BOARD_SIZE; i++)
+	{
+		for (int j=0; j<BOARD_SIZE; j++)
+		{
+			if (get_cell(board,i,j)== player)
+			{
+                if ((i-1)>=0) 
+                {
+                    if (get_cell(board,i-1,j)!=player && 
+                        get_cell(board,i-1,j)!= '0')
+                    {
+                        perimeter += 1;
+                        set_cell(board, i-1, j, '0');
+                    }
+                }
+                if ((i+1)< BOARD_SIZE) 
+                {
+                    if (get_cell(board,i+1,j)!=player && 
+                        get_cell(board,i+1,j)!= '0')
+                    {
+                        perimeter += 1;
+                        set_cell(board, i+1, j, '0');
+                    }
+                }
+				if ((j-1)>=0)  
+                {
+                    if (get_cell(board,i,j-1)!=player && 
+                        get_cell(board,i,j-1)!= '0')
+                    {
+                        perimeter += 1;
+                        set_cell(board, i, j-1, '0');
+                    }
+                }
+                if ((j+1)<BOARD_SIZE)
+                {
+                    if (get_cell(board,i,j+1)!=player && 
+                        get_cell(board,i,j+1)!= '0')
+                    {
+                        perimeter += 1;
+                        set_cell(board, i, j+1, '0');
+                    }
+                }              
+            }
+        }
+    }
+    return perimeter; 
+}
+
+
+
 /*
 char *(*select_players(void))(char*)
 {
@@ -236,6 +240,57 @@ char *(*select_players(void))(char*)
 }
 */
 
+// ------------ Les joueurs --------------------------------------------
+
+char colorselect(char* board, char player)
+{
+    // joueur humain
+    char color;
+    do
+    {
+        printf("Selectionnez une couleur : ");
+        printf("\n");
+        scanf("%c", &color);
+    }while(color < 'A' || color > 'G');
+    return color;
+}
+
+char alea_computer(char* board, char player)
+{
+    // joueur aleatoire
+    return rand_a_b('A', 'G'+1);
+}
+
+char hegemonique(char* board, char player)
+{
+    // implémentation du joueur hegemonique (augmentation du périmètre)
+    int best_perimeter = 0;
+    char best_color = 'A';// couleur par defaut
+    int perimeter;
+    char temp_board[BOARD_SIZE*BOARD_SIZE] = {0};
+    for(char color = 'A'; color <= 'G'; color++)
+    {
+        // on crée un plateau temporaire de test
+
+        for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
+        {
+            temp_board[i] = board[i];
+        }
+        board_update_recu(temp_board, player, color);
+        // detection du perimetre
+        perimeter = get_perimeter_size(temp_board, player);
+        if (perimeter > best_perimeter)
+        {
+            best_perimeter = perimeter;
+            best_color = color;
+        }
+    }
+    // print_board(temp_board);
+    printf("\nLa meilleur couleur est %c pour un perimetre de %d\n",best_color, best_perimeter);
+    return best_color;
+}
+
+
 /** Program entry point */
 int main(void)
 {
@@ -244,7 +299,7 @@ int main(void)
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
     generate_aleat_board(board);
-    print_board();
+    print_board(board);
 
     int victory = 0;
     int count1 = 1;
@@ -255,20 +310,20 @@ int main(void)
     
     while (victory==0)
     {
-		color=colorselect(board);
+		color=colorselect(board, '.');
 		printf("_%c_ \n",color);
 		count1=board_update_recu(board,'.',color)+count1;
-		print_board();
+		print_board(board);
 		printf("le nombre de case est %d \n",count1);
 		if (count1>45)
 		{ 
 			victory=1;
 		}
     
-		color=colorselect(board);
+		color = hegemonique(board, '^');
         printf("_%c_ \n",color);
 		count2=board_update_recu(board,'^',color)+count2;
-		print_board();
+		print_board(board);
 		printf("le nombre de case est %d \n",count2);
 		if (count2>45)
 		{ 
