@@ -49,6 +49,7 @@ char colorselect(char* board)
     do
     {
         printf("Selectionnez une couleur : ");
+        printf("\n");
         scanf("%c", &color);
     }while(color < 'A' || color > 'G');
     return color;
@@ -137,6 +138,22 @@ int board_update_recu(char* board, char player, char color)
 				{
 				nb_changement = recursive_update(i,j,board,player,color,0);
 				}
+				if ((j-1)>=0)  
+					{
+					if (get_cell(i,j-1)==player)
+					{
+						nb_changement = recursive_update(i,j,board,player,color,0)+1;
+						set_cell(i,j,player);
+					}
+					}
+				if ((j+1)<BOARD_SIZE)
+					{
+						if (get_cell(i,j+1)==player)
+						{
+							nb_changement = recursive_update(i,j,board,player,color,0)+1;
+							set_cell(i,j,player);
+						}
+					}
 			}
 			if ((j-1)>=0)  
 				{
@@ -152,9 +169,9 @@ int board_update_recu(char* board, char player, char color)
 					nb_changement = recursive_update(i,j,board,player,color,0);
 				}
 			}
+            }
         }
     }
-}
 	
     return nb_changement;
 }
@@ -208,12 +225,36 @@ int main(void)
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
     generate_aleat_board(board);
-    int victory = 0;
-    int count1 = 0;
-    int count2 = 0;
-    char (*players_tab[2])(char*);
-    players_tab = select_players();
     print_board();
+
+    int victory = 0;
+    int count1 = 1;
+    int count2 = 1;
+    char color;
+    /*char (*players_tab[2])(char*);
+    select_players(players_tab);*/
+    
+    while (victory==0)
+    {
+		color=colorselect(board);
+		printf("%c \n",color);
+		count1=board_update_recu(board,'V',color)+count1;
+		print_board();
+		printf("le nombre de case est %d \n",count1);
+		if (count1>45)
+		{ 
+			victory=1;
+		}
+    
+		color=colorselect(board);
+		count2=board_update_recu(board,'^',color)+count2;
+		print_board();
+		printf("le nombre de case est %d \n",count2);
+		if (count2>45)
+		{ 
+			victory=1;
+		}
+    }
     
     return 0; // Everything went well
 }
