@@ -61,40 +61,8 @@ char alea_computer(char* board, char player)
 char hegemonique(char* board, char player)
 * renvoit le choix du joueur hégémonique
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 */
 //------------------ Programme -----------------------------------------
-
-
-
-
 
 
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
