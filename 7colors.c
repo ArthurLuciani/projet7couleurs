@@ -15,6 +15,88 @@
  *     an appropriate data structure would also be preferred), but don't worry.
  *     For this first assignment, no dinosaure will get you if you do that.
  */
+// -------- Prototype des fonctions ------------------------------------
+/**
+ **************** Fonction générales************************************
+char rand_a_b(char a, char b) 
+* renvoit un carctère compris entre a (inclu) et b (exclu)
+
+char get_cell(char* board, int x, int y)
+* renvoit la couelur se trouvant à la position x,y
+
+void set_cell(char* board, int x, int y, char color)
+* change la couleur se trouvant à la position x,y
+
+void generate_aleat_board(char* board)
+*  change les couleurs aléatoirement du tableau en entrée, et met les couleurs des joueurs dans les coins
+*  utilise BOARD_SIZE qui doit être accessible
+
+void print_board(char* board)
+* affiche le tableau en entrée
+
+int board_update_recu(char* board, char player, char color)
+* actualise le tableau en entrée en fonction du joueur et de la couleur jouée, renvoit le nombre de case modifiée
+
+int recursive_update (int position_x, int position_y, char* board, char player, char color)
+* modifie la couleur des cases adjacentes de la case x,y qui sont de la bonne couleur
+
+int get_perimeter_size(char* board, char player)
+* retourne le nombre de case qui forme le périmètre du joueur
+* utilise la couleur des joueurs (qui doivent être accessible)
+
+
+
+******************************Les joueurs*******************************
+
+int selection_player ()
+* permet de selectionner un type de joueur
+
+
+char colorselect(char* board, char player)
+* permet à un joueur huamain de sélectionner une couleur
+
+char alea_computer(char* board, char player)
+* Renvoit le choix du joueur aléatoire classique
+
+char hegemonique(char* board, char player)
+* renvoit le choix du joueur hégémonique
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+//------------------ Programme -----------------------------------------
+
+
+
+
+
+
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
 char temp_board[BOARD_SIZE * BOARD_SIZE];
 
@@ -300,6 +382,29 @@ char hegemonique(char* board, char player)
     return best_color;
 }
 
+int selection_player ()
+{
+	int strategie_joueur=1;
+	do 
+	{
+		printf("Selectioner le type de joueur :");
+		printf("\n");
+		printf("1=humain, 2=aleatoire, 3=aleatoire+, 4=glouton, 5=glouton_carre, 6=hegemonique");
+		printf("\n");
+		scanf("%d",&strategie_joueur);
+		printf("\n");
+
+	}while(strategie_joueur>6 || strategie_joueur <1);
+	return strategie_joueur;
+}
+
+
+
+
+
+
+
+
 
 /** Program entry point */
 int main(void)
@@ -308,16 +413,106 @@ int main(void)
     printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
-    generate_aleat_board(board);
-    print_board(board);
-
-    int victory = 0;
+	int victory = 0;
     int count1 = 1;
     int count2 = 1;
-    char color;
+    char color;   
+	int strategie_joueur1=1;
+	int strategie_joueur2=1;
+	strategie_joueur1=selection_player();
+	strategie_joueur2=selection_player();
+    generate_aleat_board(board);
+    print_board(board);
+    char (*pointeur_sur_fonction_joueur1)(char*,char);
+    char (*pointeur_sur_fonction_joueur2)(char*,char);
+    switch(strategie_joueur1)
+        {
+        case 1 :
+            pointeur_sur_fonction_joueur1 = colorselect;
+            break;
+            
+        case 2 :
+            pointeur_sur_fonction_joueur1 = alea_computer;
+            break;
+            
+        /*case 3 :
+			pointeur_sur_fonction_joueur1 = alea_computer+;
+			break
+            
+        case 4 :
+            pointeur_sur_fonction_joueur1 = opti1;
+            break;
+            
+        case 5 :
+            pointeur_sur_fonction_joueur1 = opti2;
+            break;*/
+            
+        case 6 :
+            pointeur_sur_fonction_joueur1 = hegemonique;
+            break;
+            
+        default :
+            pointeur_sur_fonction_joueur1 = colorselect;
+            break;
+        }
+    
+    switch(strategie_joueur2)
+        {
+        case 1 :
+            pointeur_sur_fonction_joueur2 = colorselect;
+            break;
+            
+        case 2 :
+            pointeur_sur_fonction_joueur2 = alea_computer;
+            break;
+            
+        /*case 3 :
+			pointeur_sur_fonction_joueur2 = alea_computer+;
+			break
+            
+        case 4 :
+            pointeur_sur_fonction_joueur2 = opti1;
+            break;
+            
+        case 5 :
+            pointeur_sur_fonction_joueur2 = opti2;
+            break;*/
+            
+        case 6 :
+            pointeur_sur_fonction_joueur2 = hegemonique;
+            break;
+            
+        default :
+            pointeur_sur_fonction_joueur2 = colorselect;
+            break;
+        }
+    
+    
+    while (victory==0)
+    {
+		color=(*pointeur_sur_fonction_joueur1)(board,P1_COLOR);
+		printf("_%c_ \n",color);
+		count1 += board_update_recu(board, P1_COLOR, color);
+		print_board(board);
+		printf("le nombre de case est %d \n",count1);
+		if (count1>(BOARD_SIZE*BOARD_SIZE/2))
+		{ 
+			victory=1;
+		}
+		color=(*pointeur_sur_fonction_joueur2)(board,P2_COLOR);
+		printf("_%c_ \n",color);
+		count2 += board_update_recu(board, P2_COLOR, color);
+		print_board(board);
+		printf("le nombre de case est %d \n",count2);
+		if (count2>(BOARD_SIZE*BOARD_SIZE/2))
+		{ 
+			victory=1;
+		}
+	}
+    
     /*char (*players_tab[2])(char*);
     select_players(players_tab);*/
-    int k = 0;
+    /*int k = 0;
     while (victory==0 && k<40)
     {
         k++;
@@ -342,6 +537,6 @@ int main(void)
 		}
         //sleep(1);
     }
-    
+    */
     return 0; // Everything went well
 }
