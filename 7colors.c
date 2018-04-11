@@ -20,13 +20,13 @@ char rand_a_b(char a, char b)
 }
 
 /** Retrieves the color of a given board cell */
-char get_cell(int x, int y)
+char get_cell(char* board, int x, int y)
 {
     return board[y * BOARD_SIZE + x];
 }
 
 /** Changes the color of a given board cell */
-void set_cell(int x, int y, char color)
+void set_cell(char* board, int x, int y, char color)
 {
     board[y * BOARD_SIZE + x] = color;
 }
@@ -38,8 +38,8 @@ void generate_aleat_board(char* board)
         char nb = rand_a_b('A', 'G'+1);
         board[i] = nb;
     }
-    set_cell(0, BOARD_SIZE-1, '.');
-    set_cell(BOARD_SIZE-1, 0, '^');
+    set_cell(board, 0, BOARD_SIZE-1, '.');
+    set_cell(board, BOARD_SIZE-1, 0, '^');
 }
 
 int get_perimeter_size(char* board, char player):
@@ -98,12 +98,12 @@ char hegemonique(char* board, char player)
  * Implementation note: It would be nicer to do this with ncurse or even
  * SDL/allegro, but this is not really the purpose of this assignment.
  */
-void print_board(void)
+void print_board(char* board)
 {
     int i, j;
     for (i = 0; i < BOARD_SIZE; i++) {
         for (j = 0; j < BOARD_SIZE; j++) {
-            printf("%c", get_cell(i, j));
+            printf("%c", get_cell(board, i, j));
         }
         printf("\n");
     }
@@ -112,32 +112,32 @@ void print_board(void)
 int recursive_update (int position_x, int position_y, char* board, char player, char color)
 {
     // transforme les cases de manièe récursive (pot de peinture)
-    set_cell(position_x,position_y,player);
+    set_cell(board, position_x,position_y,player);
     int nb_changement = 1;
 	if ((position_x-1)>=0) 
 	{
-		if (get_cell(position_x-1,position_y)==color)
+		if (get_cell(board, position_x-1,position_y)==color)
 		{
 			nb_changement += recursive_update(position_x-1,position_y,board,player,color);
 		}
 	}
 	if ((position_x+1)< BOARD_SIZE) 
 	{
-		if (get_cell(position_x+1,position_y)==color)
+		if (get_cell(board, position_x+1,position_y)==color)
 		{
 			nb_changement += recursive_update(position_x+1,position_y,board,player,color);
 		}
 	}
 	if ((position_y-1)>=0)  
     {
-        if (get_cell(position_x,position_y-1)==color)
+        if (get_cell(board, position_x,position_y-1)==color)
         {
             nb_changement += recursive_update(position_x,position_y-1,board,player,color);
         }
     }
 	if ((position_y+1)<BOARD_SIZE)
     {
-        if (get_cell(position_x,position_y+1)==color)
+        if (get_cell(board, position_x,position_y+1)==color)
         {
             nb_changement += recursive_update(position_x,position_y-1,board,player,color);
         }
@@ -154,11 +154,11 @@ int board_update_recu(char* board, char player, char color)
 	{
 		for (int j=0; j<BOARD_SIZE; j++)
 		{
-			if (get_cell(i,j)== color)
+			if (get_cell(board,i,j)== color)
 			{
                 if ((i-1)>=0) 
                 {
-                    if (get_cell(i-1,j)==player)
+                    if (get_cell(board,i-1,j)==player)
                     {
                         nb_changement += recursive_update(i,j,board,player,color);
                         continue;
@@ -166,7 +166,7 @@ int board_update_recu(char* board, char player, char color)
                 }
                 if ((i+1)< BOARD_SIZE) 
                 {
-                    if (get_cell(i+1,j)==player)
+                    if (get_cell(board,i+1,j)==player)
                     {
                         nb_changement += recursive_update(i,j,board,player,color);
                         continue;
@@ -174,7 +174,7 @@ int board_update_recu(char* board, char player, char color)
                 }
 				if ((j-1)>=0)  
                 {
-                    if (get_cell(i,j-1)==player)
+                    if (get_cell(board,i,j-1)==player)
                     {
                         nb_changement += recursive_update(i,j,board,player,color);
                         continue;
@@ -182,7 +182,7 @@ int board_update_recu(char* board, char player, char color)
                 }
                 if ((j+1)<BOARD_SIZE)
                 {
-                    if (get_cell(i,j+1)==player)
+                    if (get_cell(board,i,j+1)==player)
                     {
                         nb_changement += recursive_update(i,j,board,player,color);
                         continue;
