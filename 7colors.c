@@ -42,7 +42,15 @@ void generate_aleat_board(char* board)
     set_cell(BOARD_SIZE-1, 0, '^');
 }
 
-char colorselect(char* board)
+int get_perimeter_size(char* board, char player):
+{
+      int perimeter = 0;
+      for()  
+}
+
+
+
+char colorselect(char* board, char player)
 {
     // joueur humain
     char color;
@@ -55,10 +63,34 @@ char colorselect(char* board)
     return color;
 }
 
-char alea_computer(char* board)
+char alea_computer(char* board, char player)
 {
     // joueur aleatoire
     return rand_a_b('A', 'G'+1);
+}
+
+char hegemonique(char* board, char player)
+{
+    // implémentation du joueur hegemonique (augmentation du périmètre)
+    int best_perimeter = 0;
+    char best_color = 'A';// couleur par defaut
+    for(char color = 'A'; color <= 'G'; color++)
+    {
+        // on crée un plateau temporaire de test
+        char* temp_board;
+        for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
+        {
+            temp_board[i] = board[i];
+        }
+        board_update_recu(temp_board, player, color);
+        // detection du perimetre
+        int perimeter = get_perimeter_size(temp_board, player);
+        if (perimeter > best_perimeter)
+        {
+            best_perimeter = perimeter;
+            best_color = color;
+        }
+    }
 }
 
 /** Prints the current state of the board on screen
@@ -79,13 +111,13 @@ void print_board(void)
 
 int recursive_update (int position_x, int position_y, char* board, char player, char color)
 {
+    // transforme les cases de manièe récursive (pot de peinture)
     set_cell(position_x,position_y,player);
     int nb_changement = 1;
 	if ((position_x-1)>=0) 
 	{
 		if (get_cell(position_x-1,position_y)==color)
 		{
-			//set_cell(position_x-1,position_y,player);
 			nb_changement += recursive_update(position_x-1,position_y,board,player,color);
 		}
 	}
@@ -93,7 +125,6 @@ int recursive_update (int position_x, int position_y, char* board, char player, 
 	{
 		if (get_cell(position_x+1,position_y)==color)
 		{
-			//set_cell(position_x+1,position_y,player);
 			nb_changement += recursive_update(position_x+1,position_y,board,player,color);
 		}
 	}
@@ -101,7 +132,6 @@ int recursive_update (int position_x, int position_y, char* board, char player, 
     {
         if (get_cell(position_x,position_y-1)==color)
         {
-            //set_cell(position_x,position_y-1,player);
             nb_changement += recursive_update(position_x,position_y-1,board,player,color);
         }
     }
@@ -109,7 +139,6 @@ int recursive_update (int position_x, int position_y, char* board, char player, 
     {
         if (get_cell(position_x,position_y+1)==color)
         {
-            //set_cell(position_x,position_y+1,player);
             nb_changement += recursive_update(position_x,position_y-1,board,player,color);
         }
     }
@@ -119,6 +148,7 @@ int recursive_update (int position_x, int position_y, char* board, char player, 
 
 int board_update_recu(char* board, char player, char color)
 {
+    // recherche les cases de la couleur color proches du territoire du joueur
 	int nb_changement=0;
 	for (int i=0; i<BOARD_SIZE; i++)
 	{
