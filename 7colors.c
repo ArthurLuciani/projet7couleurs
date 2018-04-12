@@ -324,7 +324,6 @@ char randok(char board[], char player)
         {
             temp_board[i]=board[i];
         }
-randok
         //get_perimeter_size copie modifiee
         //perimeter = colorcounter[k]
         //remplacer board par temp_board
@@ -548,11 +547,7 @@ char hegemonique(char* board, char player)
             //print_board(temp_board);
         }
     }
-    //glouton par défaut
-    if (bast_perimeter<=perimeter)
-    {
-        best_color=glouton(board, player);
-    }
+
     // print_board(temp_board);
     printf("\nLa meilleur couleur pour %c est %c pour un perimetre de %d\n",player, best_color, best_perimeter);
     return best_color;
