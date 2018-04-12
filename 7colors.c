@@ -368,6 +368,7 @@ char hegemonique(char* board, char player)
             temp_board[i] = board[i];
         }
         board_update_recu(temp_board, player, color);
+        
         // detection du perimetre
         perimeter = get_perimeter_size(temp_board, player);
         if (perimeter > best_perimeter)
