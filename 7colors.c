@@ -238,7 +238,114 @@ int board_update_recu(char* board, char player, char color)
 
 
 
+char choiceglouton(char board[], char player)
+{
+    int colorcounter[7]={0,0,0,0,0,0,0};
+    int colornb=0;
+    char chosencolor='A';
 
+
+    for(int k=0; k<6; k++) //chaque couleur
+    {
+        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
+        {
+            temp_board[i]=board[i];
+        }
+
+        /*old
+        copie de board_update_recu
+        int nb_changement=0; remplace par colorcounter
+        remplacer board par temp_board
+        remplacer color par chosencolor*/
+
+        colorcounter[k]+=board_update_recu(temp_board[], player, chosencolor)
+
+        chosencolor+=1;
+    }
+    chosencolor='A';
+    colornb=colorcounter[0];
+
+    for(int i=1;i<6;i++)
+    {
+        if (colorcounter[i]>colornb)
+        {
+            colorcounter[i]=colornb;
+            chosencolor='A'+i;
+        }
+    }
+    return chosencolor;
+}
+
+char choicerandok(char board[], char player)
+{
+    int colorcounter[7]={0,0,0,0,0,0,0};
+    int colornb=0;
+    char chosencolor='A';
+
+    for(int k=0; k<6; k++) //chaque couleur
+    {
+        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
+        {
+            temp_board[i]=board[i];
+        }
+
+        //get_perimeter_size copie modifiee
+        //perimeter = colorcounter[k]
+        //remplacer board par temp_board
+        //remplacer color par chosencolor
+
+        for (int i=0; i<BOARD_SIZE; i++)
+        {
+            for (int j=0; j<BOARD_SIZE; j++)
+            {
+                if (get_cell(temp_board,i,j)== player)
+                {
+                    if ((i-1)>=0)
+                    {
+                        if (get_cell(temp_board,i-1,j)==chosencolor)
+                        {
+                            colorcounter[k] = 1;
+                            set_cell(temp_board, i-1, j, '0');
+                        }
+                    }
+                    if ((i+1)< BOARD_SIZE)
+                    {
+                        if (get_cell(temp_board,i+1,j)==chosencolor)
+                        {
+                            colorcounter[k] = 1;
+                            set_cell(temp_board, i+1, j, '0');
+                        }
+                    }
+                    if ((j-1)>=0)
+                    {
+                        if (get_cell(temp_board,i,j-1)==chosencolor)
+                        {
+                            colorcounter[k] = 1;
+                            set_cell(temp_board, i, j-1, '0');
+                        }
+                    }
+                    if ((j+1)<BOARD_SIZE)
+                    {
+                        if (get_cell(temp_board,i,j+1)==chosencolor)
+                        {
+                            colorcounter[k] = 1;
+                            set_cell(temp_board, i, j+1, '0');
+                        }
+                    }
+                }
+            }
+        }
+        chosencolor+=1;
+    }
+
+    do
+    {
+        chosencolor=rand_a_b('A', 'G'+1);
+    }
+    while(colorcounter[chosencolor-'A']==0)
+
+    return chosencolor;
+}
 
 /*old début glouton
 char choiceia3(int player, int updatedcells[], int updatedcellssize, int colorcounter[])
@@ -607,6 +714,22 @@ char hegemonique(char* board, char player)
     // print_board(temp_board);
     printf("\nLa meilleur couleur pour %c est %c pour un perimetre de %d\n",player, best_color, best_perimeter);
     return best_color;
+}
+
+int selection_player ()
+{
+	int strategie_joueur=1;
+	do 
+	{
+		printf("Selectioner le type de joueur :");
+		printf("\n");
+		printf("1=humain, 2=aleatoire, 3=aleatoire+, 4=glouton, 5=glouton_carre, 6=hegemonique");
+		printf("\n");
+		scanf("%d",&strategie_joueur);
+		printf("\n");
+
+	}while(strategie_joueur>6 || strategie_joueur <1);
+	return strategie_joueur;
 }
 
 
