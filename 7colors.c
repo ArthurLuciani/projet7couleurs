@@ -1,9 +1,9 @@
 /* Template of the 7 wonders of the world of the 7 colors assigment. */
 
 #include <stdio.h>     /* printf */
-#include <time.h> 
+#include <time.h>
 #include <stdlib.h>
-#include <unistd.h> 
+#include <unistd.h>
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
 #define P1_COLOR '.'
@@ -49,6 +49,8 @@ int bordercolorpresence(char chosencolor, char* board, char player);
 // renvoit 1 si la couleur est présente sur les frontières du joueur
 // renvoit 0 sinon
 
+int glouton_recu_count(char board[], char player, int glouton_count);
+// renvoit le nombre de changement maximum pour (glouton_count) coups
 
 //******************************Les joueurs*******************************
 
@@ -223,7 +225,7 @@ int get_perimeter_size(char* board, char player)
 	{
 		tmp_board[i] = board[i];
 	}
- 
+
   int perimeter = 0;
 	for (int i=0; i<BOARD_SIZE; i++)
 	{
@@ -231,7 +233,7 @@ int get_perimeter_size(char* board, char player)
 		{
 			if (get_cell(tmp_board,i,j)== player)
 			{
-                if ((i-1)>=0) 
+                if ((i-1)>=0)
                 {
                     if (get_cell(tmp_board,i-1,j)!=P1_COLOR &&
                         get_cell(tmp_board,i-1,j)!=P2_COLOR &&
@@ -241,7 +243,7 @@ int get_perimeter_size(char* board, char player)
                         set_cell(tmp_board, i-1, j, '0');
                     }
                 }
-                if ((i+1)< BOARD_SIZE) 
+                if ((i+1)< BOARD_SIZE)
                 {
                     if (get_cell(tmp_board,i+1,j)!=P1_COLOR &&
                         get_cell(tmp_board,i+1,j)!=P2_COLOR && 
@@ -270,11 +272,11 @@ int get_perimeter_size(char* board, char player)
                         perimeter += 1;
                         set_cell(tmp_board, i, j+1, '0');
                     }
-                }              
+                }
             }
         }
     }
-    return perimeter; 
+    return perimeter;
 }
 
 
@@ -323,6 +325,41 @@ int bordercolorpresence(char chosencolor, char* board, char player)
 	return colorpresence;
 }
 	
+int glouton_recu_count(char board[], char player, int glouton_count)
+{
+
+    int colorcounter[7]={0,0,0,0,0,0,0};
+    char chosencolor='A';
+    char temp_board_n[7][BOARD_SIZE * BOARD_SIZE];
+
+    for(int k=0; k<7; k++) //chaque couleur
+    {
+        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
+        {
+            temp_board_n[k][i]=board[i];
+        }
+
+        colorcounter[k]+=board_update_recu(temp_board_n[k], player, chosencolor);
+
+        glouton_count--;
+        if(glouton_count>0)
+        {
+            colorcounter[k] += glouton_recu_count(temp_board_n[k], player, glouton_count);
+        }
+
+        chosencolor+=1;
+    }
+
+    for(int i=1;i<7;i++)
+    {
+        if (colorcounter[0]<colorcounter[i])
+        {
+            colorcounter[0]=colorcounter[i];
+        }
+    }
+
+    return(colorcounter[0]);
+}
 
 
 
@@ -456,12 +493,12 @@ char glouton_2(char board[], char player)
 
 char hegemonique(char* board, char player)
 {
-    // implémentation du joueur hegemonique (augmentation du périmètre)
-    
-    
+    // implementation du joueur hegemonique (augmentation du perimetre)
+
+
     int best_perimeter = get_perimeter_size(board, player);
     char best_color = choiceglouton(board, player);// couleur par defaut
-	
+
     int perimeter = 0;
     printf("\n---------------test----------------\n");
     //------char temp_board[BOARD_SIZE * BOARD_SIZE];
@@ -488,7 +525,7 @@ char hegemonique(char* board, char player)
     return best_color;
 }
 
-int selection_player ()
+int selection_player()
 {
 	int strategie_joueur=0;
 	
