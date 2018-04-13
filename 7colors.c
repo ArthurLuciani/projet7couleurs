@@ -230,6 +230,145 @@ int board_update_recu(char* board, char player, char color)
 
 
 
+/*old début glouton
+char choiceia3(int player, int updatedcells[], int updatedcellssize, int colorcounter[])
+{
+    // /!\ soucis double check si profils d'escaliers
+    int cell;
+    int x,y;
+    int colornb=0;
+    char chosencolor='A';
+https://www.youtube.com/watch?v=OQSNhk5ICTI
+    //boucle par case mise à jour
+    for(int i=0; i<updatedcells;i++)
+    {
+        //test case dessous
+        if((updatedcells[i])<(BOARD_SIZE*(BOARD_SIZE-1)))
+        {
+            ++y;
+            colorcounterfct(x, y, colorcounter[]);
+            --y;
+        }
+        //test case desssus
+        if((updatedcells[i])>BOARD_SIZE)
+        {
+            --y;
+            colorcounterfct(x, y, colorcounter[]);
+            ++y;
+        }
+        //test case droite
+        if((updatedcells[i]%BOARD_SIZE)>0)
+        {
+            ++x;
+            colorcounterfct(x, y, colorcounter[]);
+            --x;
+        }
+        //test case gauche
+        if(updatedcells[i]%BOARD_SIZE<9)
+        {
+            --x;
+            colorcounterfct(x, y, colorcounter[]);
+            ++x;
+        }
+    }
+
+    //non récursif, choix IA gloutonne et normale
+    for(int i=1;i<6;i++)
+    {
+        if (colorcounter[i]>colornb)
+        {
+            colorcounter[i]=colornb;
+            chosencolor='A'+i;
+        }
+    }
+    colorcounter[chosencolor-'A']=0;
+
+    return chosencolor;
+}
+
+//incrémenter les compteurs séparément*/
+
+=======
+}
+int get_perimeter_size(char* board, char player)
+{
+
+  int perimeter = 0;
+	for (int i=0; i<BOARD_SIZE; i++)
+	{
+		for (int j=0; j<BOARD_SIZE; j++)
+		{
+			if (get_cell(board,i,j)== player)
+			{
+                if ((i-1)>=0)
+                {
+                    if (get_cell(board,i-1,j)!=P1_COLOR &&
+                        get_cell(board,i-1,j)!=P2_COLOR &&
+                        get_cell(board,i-1,j)!= '0')
+                    {
+                        perimeter += 1;
+                        set_cell(board, i-1, j, '0');
+                    }
+                }
+                if ((i+1)< BOARD_SIZE)
+                {
+                    if (get_cell(board,i+1,j)!=P1_COLOR &&
+                        get_cell(board,i+1,j)!=P2_COLOR &&
+                        get_cell(board,i+1,j)!= '0')
+                    {
+                        perimeter += 1;
+                        set_cell(board, i+1, j, '0');
+                    }
+                }
+				if ((j-1)>=0)
+                {
+                    if (get_cell(board,i,j-1)!=P1_COLOR &&
+                        get_cell(board,i,j-1)!=P2_COLOR &&
+                        get_cell(board,i,j-1)!= '0')
+                    {
+                        perimeter += 1;
+                        set_cell(board, i, j-1, '0');
+                    }
+                }
+                if ((j+1)<BOARD_SIZE)
+                {
+                    if (get_cell(board,i,j+1)!=P1_COLOR &&
+                        get_cell(board,i,j+1)!=P2_COLOR &&
+                        get_cell(board,i,j+1)!= '0')
+                    {
+                        perimeter += 1;
+                        set_cell(board, i, j+1, '0');
+                    }
+                }
+            }
+        }
+    }
+    return perimeter;
+}
+
+
+
+// ------------ Les joueurs --------------------------------------------
+
+char colorselect(char* board, char player)
+{
+    // joueur humain
+    char color;
+    do
+    {
+        printf("Selectionnez une couleur : ");
+        printf("\n");
+        scanf("%c", &color);
+    }while(color < 'A' || color > 'G');
+    return color;
+}
+
+char alea_computer(char* board, char player)
+{
+    // joueur aleatoire
+    return rand_a_b('A', 'G'+1);
+}
+
 char glouton(char board[], char player)
 {
     int colorcounter[7]={0,0,0,0,0,0,0};
@@ -380,145 +519,6 @@ char randok(char board[], char player)
     while(colorcounter[chosencolor-'A']==0)
 
     return chosencolor;
-}
-
-/*old début glouton
-char choiceia3(int player, int updatedcells[], int updatedcellssize, int colorcounter[])
-{
-    // /!\ soucis double check si profils d'escaliers
-    int cell;
-    int x,y;
-    int colornb=0;
-    char chosencolor='A';
-https://www.youtube.com/watch?v=OQSNhk5ICTI
-    //boucle par case mise à jour
-    for(int i=0; i<updatedcells;i++)
-    {
-        //test case dessous
-        if((updatedcells[i])<(BOARD_SIZE*(BOARD_SIZE-1)))
-        {
-            ++y;
-            colorcounterfct(x, y, colorcounter[]);
-            --y;
-        }
-        //test case desssus
-        if((updatedcells[i])>BOARD_SIZE)
-        {
-            --y;
-            colorcounterfct(x, y, colorcounter[]);
-            ++y;
-        }
-        //test case droite
-        if((updatedcells[i]%BOARD_SIZE)>0)
-        {
-            ++x;
-            colorcounterfct(x, y, colorcounter[]);
-            --x;
-        }
-        //test case gauche
-        if(updatedcells[i]%BOARD_SIZE<9)
-        {
-            --x;
-            colorcounterfct(x, y, colorcounter[]);
-            ++x;
-        }
-    }
-
-    //non récursif, choix IA gloutonne et normale
-    for(int i=1;i<6;i++)
-    {
-        if (colorcounter[i]>colornb)
-        {
-            colorcounter[i]=colornb;
-            chosencolor='A'+i;
-        }
-    }
-    colorcounter[chosencolor-'A']=0;
-
-    return chosencolor;
-}
-
-//incrémenter les compteurs séparément*/
-
-=======
-}
-int get_perimeter_size(char* board, char player)
-{
-
-  int perimeter = 0;
-	for (int i=0; i<BOARD_SIZE; i++)
-	{
-		for (int j=0; j<BOARD_SIZE; j++)
-		{
-			if (get_cell(board,i,j)== player)
-			{
-                if ((i-1)>=0)
-                {
-                    if (get_cell(board,i-1,j)!=P1_COLOR &&
-                        get_cell(board,i-1,j)!=P2_COLOR &&
-                        get_cell(board,i-1,j)!= '0')
-                    {
-                        perimeter += 1;
-                        set_cell(board, i-1, j, '0');
-                    }
-                }
-                if ((i+1)< BOARD_SIZE)
-                {
-                    if (get_cell(board,i+1,j)!=P1_COLOR &&
-                        get_cell(board,i+1,j)!=P2_COLOR &&
-                        get_cell(board,i+1,j)!= '0')
-                    {
-                        perimeter += 1;
-                        set_cell(board, i+1, j, '0');
-                    }
-                }
-				if ((j-1)>=0)
-                {
-                    if (get_cell(board,i,j-1)!=P1_COLOR &&
-                        get_cell(board,i,j-1)!=P2_COLOR &&
-                        get_cell(board,i,j-1)!= '0')
-                    {
-                        perimeter += 1;
-                        set_cell(board, i, j-1, '0');
-                    }
-                }
-                if ((j+1)<BOARD_SIZE)
-                {
-                    if (get_cell(board,i,j+1)!=P1_COLOR &&
-                        get_cell(board,i,j+1)!=P2_COLOR &&
-                        get_cell(board,i,j+1)!= '0')
-                    {
-                        perimeter += 1;
-                        set_cell(board, i, j+1, '0');
-                    }
-                }
-            }
-        }
-    }
-    return perimeter;
-}
-
-
-
-// ------------ Les joueurs --------------------------------------------
-
-char colorselect(char* board, char player)
-{
-    // joueur humain
-    char color;
-    do
-    {
-        printf("Selectionnez une couleur : ");
-        printf("\n");
-        scanf("%c", &color);
-    }while(color < 'A' || color > 'G');
-    return color;
-}
-
-char alea_computer(char* board, char player)
-{
-    // joueur aleatoire
-    return rand_a_b('A', 'G'+1);
 }
 
 char hegemonique(char* board, char player)
