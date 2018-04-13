@@ -1,9 +1,9 @@
 /* Template of the 7 wonders of the world of the 7 colors assigment. */
 
 #include <stdio.h>     /* printf */
-#include <time.h> 
+#include <time.h>
 #include <stdlib.h>
-#include <unistd.h> 
+#include <unistd.h>
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
 #define P1_COLOR '.'
@@ -70,6 +70,9 @@ char alea_computer_ameliore(char* board, char player);
 
 char choiceglouton(char* board, char player);
 // renvoi le choix du joueur glouton
+
+char glouton_2(char board[], char player);
+// renvoi le choix du joueur glouton prevoyant
 
 char glouton_n(char board[], char player);
 // renvoi le choix du joueur glouton prevoyant
@@ -225,7 +228,7 @@ int get_perimeter_size(char* board, char player)
 	{
 		tmp_board[i] = board[i];
 	}
- 
+
   int perimeter = 0;
 	for (int i=0; i<BOARD_SIZE; i++)
 	{
@@ -272,11 +275,11 @@ int get_perimeter_size(char* board, char player)
                         perimeter += 1;
                         set_cell(tmp_board, i, j+1, '0');
                     }
-                }              
+                }
             }
         }
     }
-    return perimeter; 
+    return perimeter;
 }
 
 
@@ -284,52 +287,39 @@ int get_perimeter_size(char* board, char player)
 int bordercolorpresence(char chosencolor, char* board, char player)
 {
 	int colorpresence=0;
-	for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
-		{
-			temp_board[i]=board[i];
-		}
-
-		//get_perimeter_size copie modifiee
-		//perimeter = colorcounter[k]
-		//remplacer board par temp_board
-		//remplacer color par chosencolor
-
+	
 	for (int i=0; i<BOARD_SIZE; i++)
 	{
 		for (int j=0; j<BOARD_SIZE; j++)
 		{
-			if (get_cell(temp_board,i,j)== player)
+			if (get_cell(board,i,j)== player)
 			{
 				if ((i-1)>=0)
 				{
-					if (get_cell(temp_board,i-1,j)==chosencolor)
+					if (get_cell(board,i-1,j)==chosencolor)
 					{
 						colorpresence = 1;
-						return colorpresence;
 					}
 				}
 				if ((i+1)< BOARD_SIZE)
 				{
-					if (get_cell(temp_board,i+1,j)==chosencolor)
+					if (get_cell(board,i+1,j)==chosencolor)
 					{
 						colorpresence = 1;
-						return colorpresence;
 					}
 				}
 				if ((j-1)>=0)
 				{
-					if (get_cell(temp_board,i,j-1)==chosencolor)
+					if (get_cell(board,i,j-1)==chosencolor)
 					{
 						colorpresence = 1;
-						return colorpresence;
 					}
 				}
 				if ((j+1)<BOARD_SIZE)
 				{
-					if (get_cell(temp_board,i,j+1)==chosencolor)
+					if (get_cell(board,i,j+1)==chosencolor)
 					{
 						colorpresence = 1;
-						return colorpresence;
 					}
 				}
 			}
@@ -446,6 +436,58 @@ char choiceglouton(char* board, char player)
 
 
 
+char glouton_2(char board[], char player)
+{
+    int colorcounter[7]={0,0,0,0,0,0,0};
+    int colorcounter_2[7]={0,0,0,0,0,0};
+    char temp_board[BOARD_SIZE * BOARD_SIZE];
+    char temp_board_2[BOARD_SIZE * BOARD_SIZE];
+	int chosencolor='A';
+	
+    for(int k=0; k<7; k++) //chaque couleur
+    {
+        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++) // init tableau
+        {
+            temp_board[i]=board[i];
+        }
+
+        colorcounter[k]+=board_update_recu(temp_board, player, 'A'+k);
+
+        for(char color = 'A'; color <= 'G'; color++)
+		{
+			for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
+			{
+				temp_board_2[i]=temp_board[i];
+			}
+			colorcounter_2[color-'A']=board_update_recu(temp_board_2, player, color);
+		}
+		for(int i=1;i<7;i++)
+		{
+			if (colorcounter_2[0]<colorcounter_2[i])
+			{
+				colorcounter_2[0]=colorcounter_2[i];
+			}
+		}
+		colorcounter[k]+=colorcounter_2[0];
+		
+        for (int j=0; j<7;j++)
+        {
+			colorcounter_2[j]= 0;
+		}
+    }
+       
+
+    for(int i=1;i<7;i++)
+    {
+        if (colorcounter[0]<=colorcounter[i])
+        {
+            colorcounter[0]=colorcounter[i];
+            chosencolor='A'+i;
+        }
+    }
+
+    return(chosencolor);
+}
 
 
 char glouton_n(char* board, char player)
@@ -488,11 +530,11 @@ char glouton_n(char* board, char player)
 char hegemonique(char* board, char player)
 {
     // implementation du joueur hegemonique (augmentation du perimetre)
-    
-    
+
+
     int best_perimeter = get_perimeter_size(board, player);
     char best_color = choiceglouton(board, player);// couleur par defaut
-	
+
     int perimeter = 0;
     printf("\n---------------test----------------\n");
     //------char temp_board[BOARD_SIZE * BOARD_SIZE];
@@ -521,7 +563,7 @@ char hegemonique(char* board, char player)
 
 int selection_player()
 {
-	int strategie_joueur=1;
+    int strategie_joueur=0;
     int c;
 	do
 	{
@@ -532,8 +574,13 @@ int selection_player()
 		scanf("%d",&strategie_joueur);
         while ((c = getchar()) != '\n' && c != EOF) {} //on vide le buffer
 		printf("\n");
+		
+		if (strategie_joueur>6 || strategie_joueur <1)
+		{
+			while ((strategie_joueur=getchar()) != '\n' && strategie_joueur!= EOF) {}
+		}
 
-	}while(strategie_joueur>6 || strategie_joueur <1);
+	}
 	return strategie_joueur;
 }
 
@@ -541,132 +588,149 @@ int selection_player()
 /** Program entry point ----------------------------------------------*/
 int main(void)
 {
-    srand(time(NULL));
-    printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
-	   "*****************************************************\n\n"
-	   "Current board state:\n");
-	int victory = 0;
-	int nb_parties=1;
-	int nb_victoire_joueur1 = 0;
-	int nb_victoire_joueur2 = 0;
-    int count1 = 1;
-    int count2 = 1;
-    int vainqueur=0;
-    char color;   
-	int strategie_joueur1=1;
-	int strategie_joueur2=1;
-    printf("Joueur 1 : \n");
-	strategie_joueur1=selection_player();
-    printf("Joueur 2 : \n");
-	strategie_joueur2=selection_player();
-    
-    char (*pointeur_sur_fonction_joueur1)(char*,char);
-    char (*pointeur_sur_fonction_joueur2)(char*,char);
-    switch(strategie_joueur1)
-        {
-        case 1 :
-            pointeur_sur_fonction_joueur1 = colorselect;
-            break;
-            
-        case 2 :
-            pointeur_sur_fonction_joueur1 = alea_computer;
-            break;
-            
-        case 3 :
-			pointeur_sur_fonction_joueur1 = alea_computer_ameliore;
-			break;
-            
-        case 4 :
-            pointeur_sur_fonction_joueur1 = choiceglouton;
-            break;
-            
-       case 5 :
-            pointeur_sur_fonction_joueur1 = glouton_n;
-            break;
-            
-        case 6 :
-            pointeur_sur_fonction_joueur1 = hegemonique;
-            break;
-            
-        default :
-            pointeur_sur_fonction_joueur1 = colorselect;
-            break;
-        }
-    
-    switch(strategie_joueur2)
-        {
-        case 1 :
-            pointeur_sur_fonction_joueur2 = colorselect;
-            break;
-            
-        case 2 :
-            pointeur_sur_fonction_joueur2 = alea_computer;
-            break;
-            
-        case 3 :
-			pointeur_sur_fonction_joueur2 = alea_computer_ameliore;
-			break;
-            
-        case 4 :
-            pointeur_sur_fonction_joueur2 = choiceglouton;
-            break;
-            
-        case 5 :
-            pointeur_sur_fonction_joueur2 = glouton_n;
-            break;
-            
-        case 6 :
-            pointeur_sur_fonction_joueur2 = hegemonique;
-            break;
-            
-        default :
-            pointeur_sur_fonction_joueur2 = colorselect;
-            break;
-        }
-    
-    printf("entrer le nombre de partie que vous voulez jouer\n");
-    scanf("%d",&nb_parties);
-    
-    for (int i=0;i<nb_parties;i++)
+	int again=1;
+	while (again==1)
     {
-		victory=0;
-		generate_aleat_board(board);
-		count1 = 1;
-		count2 = 1;
-		while (victory==0)
-		{
-			color=(*pointeur_sur_fonction_joueur1)(board,P1_COLOR);
-			printf("_%c_ \n",color);
-			count1 += board_update_recu(board, P1_COLOR, color);
-			print_board(board);
-			printf("le nombre de case est %d \n",count1);
-			if (count1>(BOARD_SIZE*BOARD_SIZE/2))
-			{ 
-				victory=1;
-				nb_victoire_joueur1 +=1;
-			}
-			color=(*pointeur_sur_fonction_joueur2)(board,P2_COLOR);
-			printf("_%c_ \n",color);
-			count2 += board_update_recu(board, P2_COLOR, color);
-			print_board(board);
-			printf("le nombre de case est %d \n",count2);
-			if (count2>(BOARD_SIZE*BOARD_SIZE/2))
-			{ 
-				victory=1;
-				nb_victoire_joueur2 +=1;;
-			}
-            sleep(1);
-		}
+		again=0;
+		srand(time(NULL));
+		printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
+		   "*****************************************************\n\n"
+		   "Current board state:\n");
+		int victory = 0;
+		int nb_parties=1;
+		int nb_victoire_joueur1 = 0;
+		int nb_victoire_joueur2 = 0;
+		int count1 = 1;
+		int count2 = 1;
+		int vainqueur=0;
+		char color;   
+		int strategie_joueur1=1;
+		int strategie_joueur2=1;
+		strategie_joueur1=selection_player();
+		strategie_joueur2=selection_player();
 		
+		char (*pointeur_sur_fonction_joueur1)(char*,char);
+		char (*pointeur_sur_fonction_joueur2)(char*,char);
+		switch(strategie_joueur1)
+			{
+			case 1 :
+				pointeur_sur_fonction_joueur1 = colorselect;
+				break;
+				
+			case 2 :
+				pointeur_sur_fonction_joueur1 = alea_computer;
+				break;
+				
+			case 3 :
+				pointeur_sur_fonction_joueur1 = alea_computer_ameliore;
+				break;
+				
+			case 4 :
+				pointeur_sur_fonction_joueur1 = choiceglouton;
+				break;
+				
+		   case 5 :
+				pointeur_sur_fonction_joueur1 = glouton_2;
+				break;
+				
+			case 6 :
+				pointeur_sur_fonction_joueur1 = hegemonique;
+				break;
+				
+			default :
+				pointeur_sur_fonction_joueur1 = colorselect;
+				break;
+			}
+		
+		switch(strategie_joueur2)
+			{
+			case 1 :
+				pointeur_sur_fonction_joueur2 = colorselect;
+				break;
+				
+			case 2 :
+				pointeur_sur_fonction_joueur2 = alea_computer;
+				break;
+				
+			case 3 :
+				pointeur_sur_fonction_joueur2 = alea_computer_ameliore;
+				break;
+				
+			case 4 :
+				pointeur_sur_fonction_joueur2 = choiceglouton;
+				break;
+				
+			case 5 :
+				pointeur_sur_fonction_joueur2 = glouton_2;
+				break;
+				
+			case 6 :
+				pointeur_sur_fonction_joueur2 = hegemonique;
+				break;
+				
+			default :
+				pointeur_sur_fonction_joueur2 = colorselect;
+				break;
+			}
+		
+		printf("entrer le nombre de partie que vous voulez jouer\n");
+		scanf("%d",&nb_parties);
+		printf("\n");
+		
+		for (int i=0;i<nb_parties;i++)
+		{
+			victory=0;
+			generate_aleat_board(board);
+			count1 = 1;
+			count2 = 1;
+			print_board(board);
+
+			while (victory==0)
+			{
+				printf("Joueur 1 rentrez la couleur que vous souhaitez jouer ");
+				color=(*pointeur_sur_fonction_joueur1)(board,P1_COLOR);
+				printf("_%c_ \n",color);
+				count1 += board_update_recu(board, P1_COLOR, color);
+				if (strategie_joueur1==1)
+				{
+					while ((color = getchar()) != '\n' && color!= EOF) {}
+				}
+				print_board(board);
+				printf("l'occupation est de %d %\n",count1/9);
+				if (count1>=(BOARD_SIZE*BOARD_SIZE/2))
+				{ 
+					victory=1;
+					nb_victoire_joueur1 +=1;
+				}
+				printf("Joueur 2 rentrez la couleur que vous souhaitez jouer ");
+				color=(*pointeur_sur_fonction_joueur2)(board,P2_COLOR);
+				printf("_%c_\n ",color);
+				count2 += board_update_recu(board, P2_COLOR, color);
+				if (strategie_joueur2==1)
+				{
+					while ((color = getchar()) != '\n' && color!= EOF) {}
+				}
+				print_board(board);
+				printf("l'occupation est de %d %\n",count2/9);
+				if (count2>=(BOARD_SIZE*BOARD_SIZE/2))
+				{ 
+					victory=1;
+					nb_victoire_joueur2 +=1;;
+				}
+			}
+			
+		}
+		if (nb_victoire_joueur1> nb_victoire_joueur2)
+		{
+			vainqueur=1;
+		} else if (nb_victoire_joueur2>nb_victoire_joueur1)
+		{
+			vainqueur=2;
+		}
+		printf("le vainqueur est le joueur %d \n",vainqueur);
+		printf("Avec %d victoires contre %d victoires",nb_victoire_joueur1,nb_victoire_joueur2);
+		printf("Voulez vous relancer une partie ?\n 1=Oui, 0=Non");
+		scanf("%d",&again);
 	}
-	if (nb_victoire_joueur1> nb_victoire_joueur2)
-	{
-		vainqueur=1;
-	} else if (nb_victoire_joueur2>nb_victoire_joueur1)
-	{
-		vainqueur=2;
-	}
-    printf("le vainqueur est le joueur %d \n",vainqueur);
-    printf("Avec %d victoires contre %d victoire",nb_victoire_joueur1,nb_victoire_joueur2);
     return 0; // Everything went well
 }
