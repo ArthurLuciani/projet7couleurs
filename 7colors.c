@@ -160,7 +160,7 @@ int recursive_update (int position_x, int position_y, char* board, char player, 
     {
         if (get_cell(board, position_x,position_y+1)==color)
         {
-            nb_changement += recursive_update(position_x,position_y-1,board,player,color);
+            nb_changement += recursive_update(position_x,position_y+1,board,player,color);
         }
     }
 	return nb_changement;
@@ -170,7 +170,7 @@ int recursive_update (int position_x, int position_y, char* board, char player, 
 int board_update_recu(char* board, char player, char color)
 {
     // recherche les cases de la couleur color proches du territoire du joueur
-	int nb_changement=0;
+	int nb_changement = 0;
 	for (int i=0; i<BOARD_SIZE; i++)
 	{
 		for (int j=0; j<BOARD_SIZE; j++)
@@ -342,7 +342,7 @@ int bordercolorpresence(char chosencolor, char* board, char player)
 int glouton_recu_count(char* board, char player, int glouton_count)
 {
     int colorcounter[7]={0,0,0,0,0,0,0};
-    char chosencolor='A';
+    char chosencolor = 'A';
 //    char temp_board_n[7][BOARD_SIZE * BOARD_SIZE];
     char temp_board_n[BOARD_SIZE * BOARD_SIZE];
     for(int k=0; k<7; k++) //chaque couleur
@@ -353,7 +353,7 @@ int glouton_recu_count(char* board, char player, int glouton_count)
             temp_board_n[i] = board[i];
         }
 
-        colorcounter[k] += board_update_recu(temp_board_n, player, chosencolor);
+        colorcounter[k] = board_update_recu(temp_board_n, player, chosencolor);
 
         if(glouton_count>1)
         {
@@ -370,8 +370,8 @@ int glouton_recu_count(char* board, char player, int glouton_count)
             colorcounter[0] = colorcounter[i];
         }
     }
-    printf("\n--- %d ----\n", colorcounter[0]);
-    return(colorcounter[0]);
+
+    return colorcounter[0];
 }
 
 
@@ -452,21 +452,31 @@ char glouton_n(char* board, char player)
 {
     int glouton_count=(2); // > 1
     int colorcounter[7]={0,0,0,0,0,0,0};
+    char temp_board_n[BOARD_SIZE * BOARD_SIZE];
+    char chosencolor = 'A';
 
     //debut recu
     for(int k=0; k<7; k++) //chaque couleur
     {
-        colorcounter[k] += glouton_recu_count(board, player, glouton_count-1);
+        for(int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
+        {
+            temp_board_n[i] = board[i];
+        }
+        colorcounter[k] += board_update_recu(temp_board_n, player, chosencolor);
+        printf("\n--- %d ---- %c ---\n", colorcounter[k], chosencolor);
+        colorcounter[k] += glouton_recu_count(temp_board_n, player, glouton_count-1);
+
+        chosencolor++;
     }
     //fin recu
     
-    char chosencolor='A';
+    chosencolor='A';
     for(int i=1;i<7;i++)
     {
         if (colorcounter[i] > colorcounter[0])
         {
             colorcounter[0] = colorcounter[i];
-            chosencolor = 'A' + i;
+            chosencolor = 'A' + (char) i;
         }
     }
     return chosencolor;
