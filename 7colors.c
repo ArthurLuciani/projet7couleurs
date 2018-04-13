@@ -52,11 +52,12 @@ int bordercolorpresence(char chosencolor, char* board, char player);
 int glouton_recu_count(char board[], char player, int glouton_count);
 // renvoit le nombre de changement maximum pour (glouton_count) coups
 
+
+
 //******************************Les joueurs*******************************
 
 int selection_player ();
 // permet de selectionner un type de joueur
-
 
 
 char colorselect(char* board, char player);
@@ -160,7 +161,7 @@ int recursive_update (int position_x, int position_y, char* board, char player, 
     {
         if (get_cell(board, position_x,position_y+1)==color)
         {
-            nb_changement += recursive_update(position_x,position_y-1,board,player,color);
+            nb_changement += recursive_update(position_x,position_y+1,board,player,color);
         }
     }
 	return nb_changement;
@@ -487,7 +488,6 @@ char glouton_2(char board[], char player)
     return(chosencolor);
 }
 
-//WIP end
 
 
 
@@ -524,6 +524,12 @@ char hegemonique(char* board, char player)
     printf("\nLa meilleur couleur pour %c est %c pour un perimetre de %d\n",player, best_color, best_perimeter);
     return best_color;
 }
+
+
+
+
+
+
 
 int selection_player()
 {
@@ -624,7 +630,7 @@ int main(void)
 				break;
 				
 			case 5 :
-				pointeur_sur_fonction_joueur2 = glouton_2;
+				pointeur_sur_fonction_joueur2 = glouton_n;
 				break;
 				
 			case 6 :
