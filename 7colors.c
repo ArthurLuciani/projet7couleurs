@@ -209,201 +209,6 @@ int board_update_recu(char* board, char player, char color)
 }
 
 
-//check par couleur
-/*void colorcounterfct(int x, int y, int colorcounter[])
-{
-    switch(get_cell(int x, int y))
-
-        case A: colorcounter[0]+=1;
-            break;
-
-        case B: colorcounter[1]+=1;
-            break;
-
-        case C: colorcounter[2]+=1;
-            break;
-
-        case D: colorcounter[3]+=1;
-            break;
-
-        case E: colorcounter[4]+=1;
-            break;
-
-        case F: colorcounter[5]+=1;
-            break;
-
-        case G: colorcounter[6]+=1;
-            break;
-}*/
-
-
-
-char choiceglouton(char board[], char player)
-{
-    int colorcounter[7]={0,0,0,0,0,0,0};
-    int colornb=0;
-    char chosencolor='A';
-
-
-    for(int k=0; k<6; k++) //chaque couleur
-    {
-        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
-        {
-            temp_board[i]=board[i];
-        }
-
-        /*old
-        copie de board_update_recu
-        int nb_changement=0; remplace par colorcounter
-        remplacer board par temp_board
-        remplacer color par chosencolor*/
-
-        colorcounter[k]+=board_update_recu(temp_board[], player, chosencolor)
-
-        chosencolor+=1;
-    }
-    chosencolor='A';
-    colornb=colorcounter[0];
-
-    for(int i=1;i<6;i++)
-    {
-        if (colorcounter[i]>colornb)
-        {
-            colorcounter[i]=colornb;
-            chosencolor='A'+i;
-        }
-    }
-    return chosencolor;
-}
-
-char choicerandok(char board[], char player)
-{
-    int colorcounter[7]={0,0,0,0,0,0,0};
-    int colornb=0;
-    char chosencolor='A';
-
-    for(int k=0; k<6; k++) //chaque couleur
-    {
-        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
-        {
-            temp_board[i]=board[i];
-        }
-
-        //get_perimeter_size copie modifiee
-        //perimeter = colorcounter[k]
-        //remplacer board par temp_board
-        //remplacer color par chosencolor
-
-        for (int i=0; i<BOARD_SIZE; i++)
-        {
-            for (int j=0; j<BOARD_SIZE; j++)
-            {
-                if (get_cell(temp_board,i,j)== player)
-                {
-                    if ((i-1)>=0)
-                    {
-                        if (get_cell(temp_board,i-1,j)==chosencolor)
-                        {
-                            colorcounter[k] = 1;
-                            set_cell(temp_board, i-1, j, '0');
-                        }
-                    }
-                    if ((i+1)< BOARD_SIZE)
-                    {
-                        if (get_cell(temp_board,i+1,j)==chosencolor)
-                        {
-                            colorcounter[k] = 1;
-                            set_cell(temp_board, i+1, j, '0');
-                        }
-                    }
-                    if ((j-1)>=0)
-                    {
-                        if (get_cell(temp_board,i,j-1)==chosencolor)
-                        {
-                            colorcounter[k] = 1;
-                            set_cell(temp_board, i, j-1, '0');
-                        }
-                    }
-                    if ((j+1)<BOARD_SIZE)
-                    {
-                        if (get_cell(temp_board,i,j+1)==chosencolor)
-                        {
-                            colorcounter[k] = 1;
-                            set_cell(temp_board, i, j+1, '0');
-                        }
-                    }
-                }
-            }
-        }
-        chosencolor+=1;
-    }
-
-    do
-    {
-        chosencolor=rand_a_b('A', 'G'+1);
-    }
-    while(colorcounter[chosencolor-'A']==0)
-
-    return chosencolor;
-}
-
-/*old début glouton
-char choiceia3(int player, int updatedcells[], int updatedcellssize, int colorcounter[])
-{
-    // /!\ soucis double check si profils d'escaliers
-    int cell;
-    int x,y;
-    int colornb=0;
-    char chosencolor='A';
-
-    //boucle par case mise à jour
-    for(int i=0; i<updatedcells;i++)
-    {
-        //test case dessous
-        if((updatedcells[i])<(BOARD_SIZE*(BOARD_SIZE-1)))
-        {
-            ++y;
-            colorcounterfct(x, y, colorcounter[]);
-            --y;
-        }
-        //test case desssus
-        if((updatedcells[i])>BOARD_SIZE)
-        {
-            --y;
-            colorcounterfct(x, y, colorcounter[]);
-            ++y;
-        }
-        //test case droite
-        if((updatedcells[i]%BOARD_SIZE)>0)
-        {
-            ++x;
-            colorcounterfct(x, y, colorcounter[]);
-            --x;
-        }
-        //test case gauche
-        if(updatedcells[i]%BOARD_SIZE<9)
-        {
-            --x;
-            colorcounterfct(x, y, colorcounter[]);
-            ++x;
-        }
-    }
-
-    //non récursif, choix IA gloutonne et normale
-    for(int i=1;i<6;i++)
-    {
-        if (colorcounter[i]>colornb)
-        {
-            colorcounter[i]=colornb;
-            chosencolor='A'+i;
-        }
-    }
-    colorcounter[chosencolor-'A']=0;
-
-    return chosencolor;
-}
-
-//incrémenter les compteurs séparément*/
 
 
 int get_perimeter_size(char* board, char player)
@@ -573,77 +378,7 @@ char alea_computer_ameliore(char* board, char player)
     return chosencolor;
 }
 
-/*char choicerandok(char board[], char player)
-{
-    int colorcounter[7]={0,0,0,0,0,0,0};
-    int colornb=0;
-    char chosencolor='A';
 
-    for(int k=0; k<6; k++) //chaque couleur
-    {
-        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
-        {
-            temp_board[i]=board[i];
-        }
-
-        //get_perimeter_size copie modifiee
-        //perimeter = colorcounter[k]
-        //remplacer board par temp_board
-        //remplacer color par chosencolor
-
-        for (int i=0; i<BOARD_SIZE; i++)
-        {
-            for (int j=0; j<BOARD_SIZE; j++)
-            {
-                if (get_cell(temp_board,i,j)== player)
-                {
-                    if ((i-1)>=0)
-                    {
-                        if (get_cell(temp_board,i-1,j)==chosencolor)
-                        {
-                            colorcounter[k] = 1;
-                            set_cell(temp_board, i-1, j, '0');
-                        }
-                    }
-                    if ((i+1)< BOARD_SIZE)
-                    {
-                        if (get_cell(temp_board,i+1,j)==chosencolor)
-                        {
-                            colorcounter[k] = 1;
-                            set_cell(temp_board, i+1, j, '0');
-                        }
-                    }
-                    if ((j-1)>=0)
-                    {
-                        if (get_cell(temp_board,i,j-1)==chosencolor)
-                        {
-                            colorcounter[k] = 1;
-                            set_cell(temp_board, i, j-1, '0');
-                        }
-                    }
-                    if ((j+1)<BOARD_SIZE)
-                    {
-                        if (get_cell(temp_board,i,j+1)==chosencolor)
-                        {
-                            colorcounter[k] = 1;
-                            set_cell(temp_board, i, j+1, '0');
-                        }
-                    }
-                }
-            }
-        }
-        chosencolor+=1;
-    }
-
-    do
-    {
-        chosencolor=rand_a_b('A', 'G'+1);
-    }
-    while(colorcounter[chosencolor-'A']==0);
-
-    return chosencolor;
-}
-*/
 char choiceglouton(char* board, char player)
 {
     int colorcounter[7]={0,0,0,0,0,0,0};
@@ -658,12 +393,7 @@ char choiceglouton(char* board, char player)
             temp_board[i]=board[i];
         }
 
-        /*old
-        copie de board_update_recu
-        int nb_changement=0; remplace par colorcounter
-        remplacer board par temp_board
-        remplacer color par chosencolor*/
-
+        
         colorcounter[k]+=board_update_recu(temp_board, player, chosencolor);
 
         chosencolor+=1;
@@ -750,6 +480,8 @@ int main(void)
 	int victory = 0;
     int count1 = 1;
     int count2 = 1;
+    int victory_joueur1 = 0;
+    int victory_joueur2 = 0;
     char color;   
 	int strategie_joueur1=1;
 	int strategie_joueur2=1;
@@ -822,6 +554,7 @@ int main(void)
         }
     
     
+    
     while (victory==0)
     {
 		color=(*pointeur_sur_fonction_joueur1)(board,P1_COLOR);
@@ -844,34 +577,7 @@ int main(void)
 		}
 	}
     
-    /*char (*players_tab[2])(char*);
-    select_players(players_tab);*/
-    /*int k = 0;
-    while (victory==0 && k<40)
-    {
-        k++;
-		color=hegemonique(board, P1_COLOR);
-		printf("_%c_ \n",color);
-		count1 += board_update_recu(board, P1_COLOR, color);
-		print_board(board);
-		printf("le nombre de case est %d \n",count1);
-		if (count1>(BOARD_SIZE*BOARD_SIZE/2))
-		{ 
-			victory=1;
-		}
     
-		color = hegemonique(board, P2_COLOR);
-        printf("_%c_ \n",color);
-		count2 += board_update_recu(board, P2_COLOR, color);
-		print_board(board);
-		printf("le nombre de case est %d \n",count2);
-		if (count2>(BOARD_SIZE*BOARD_SIZE/2))
-		{ 
-			victory=1;
-		}
-        //sleep(1);
-    }
-    */
     return 0; // Everything went well
 }
 
