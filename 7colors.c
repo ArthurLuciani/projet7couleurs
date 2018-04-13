@@ -52,8 +52,6 @@ int bordercolorpresence(char chosencolor, char* board, char player);
 int glouton_recu_count(char board[], char player, int glouton_count);
 // renvoit le nombre de changement maximum pour (glouton_count) coups
 
-
-
 //******************************Les joueurs*******************************
 
 int selection_player ();
@@ -73,6 +71,9 @@ char choiceglouton(char* board, char player);
 // renvoi le choix du joueur glouton
 
 char glouton_2(char board[], char player);
+// renvoi le choix du joueur glouton prevoyant
+
+char glouton_n(char board[], char player);
 // renvoi le choix du joueur glouton prevoyant
 
 char hegemonique(char* board, char player);
@@ -326,40 +327,40 @@ int bordercolorpresence(char chosencolor, char* board, char player)
 	return colorpresence;
 }
 	
-int glouton_recu_count(char board[], char player, int glouton_count)
+
+int glouton_recu_count(char* board, char player, int glouton_count)
 {
-
     int colorcounter[7]={0,0,0,0,0,0,0};
-    char chosencolor='A';
-    char temp_board_n[7][BOARD_SIZE * BOARD_SIZE];
-
+    char chosencolor = 'A';
+//    char temp_board_n[7][BOARD_SIZE * BOARD_SIZE];
+    char temp_board_n[BOARD_SIZE * BOARD_SIZE];
     for(int k=0; k<7; k++) //chaque couleur
     {
-        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
+
+        for(int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
         {
-            temp_board_n[k][i]=board[i];
+            temp_board_n[i] = board[i];
         }
 
-        colorcounter[k]+=board_update_recu(temp_board_n[k], player, chosencolor);
+        colorcounter[k] = board_update_recu(temp_board_n, player, chosencolor);
 
-        glouton_count--;
-        if(glouton_count>0)
+        if(glouton_count>1)
         {
-            colorcounter[k] += glouton_recu_count(temp_board_n[k], player, glouton_count);
+            colorcounter[k] += glouton_recu_count(temp_board_n, player, glouton_count-1);
         }
 
-        chosencolor+=1;
+        chosencolor++;
     }
 
     for(int i=1;i<7;i++)
     {
         if (colorcounter[0]<colorcounter[i])
         {
-            colorcounter[0]=colorcounter[i];
+            colorcounter[0] = colorcounter[i];
         }
     }
 
-    return(colorcounter[0]);
+    return colorcounter[0];
 }
 
 
@@ -370,12 +371,14 @@ int glouton_recu_count(char board[], char player, int glouton_count)
 char colorselect(char* board, char player)
 {
     // joueur humain
-    char color='0';
+    char color, c;
     do
     {
-		printf("\n");
+        printf("Selectionnez une couleur : ");
+        printf("\n");
         scanf("%c", &color);
-    }while ((color < 'A' )|| (color > 'G'));
+        while ((c = getchar()) != '\n' && c != EOF) {} //on vide le buffer
+    }while(color < 'A' || color > 'G');
     return color;
 }
 
@@ -401,8 +404,8 @@ char alea_computer_ameliore(char* board, char player)
 char choiceglouton(char* board, char player)
 {
     int colorcounter[7]={0,0,0,0,0,0,0};
-    int colornb=0;
-    char chosencolor='A';
+    int colornb = 0;
+    char chosencolor = 'A';
 
 
     for(int k=0; k<7; k++) //chaque couleur
@@ -412,26 +415,23 @@ char choiceglouton(char* board, char player)
             temp_board[i]=board[i];
         }
 
-        
-        colorcounter[k]+=board_update_recu(temp_board, player, chosencolor);
+        colorcounter[k] += board_update_recu(temp_board, player, chosencolor);
 
         chosencolor+=1;
     }
     chosencolor='A';
-    colornb=colorcounter[0];
+    colornb = colorcounter[0];
 
     for(int i=1;i<7;i++)
     {
         if (colorcounter[i]>colornb)
         {
-            colornb=colorcounter[i];
+            colornb = colorcounter[i];
             chosencolor='A'+i;
         }
     }
     return chosencolor;
 }
-
-
 
 
 
@@ -489,6 +489,46 @@ char glouton_2(char board[], char player)
 }
 
 
+char glouton_n(char* board, char player)
+{
+    int glouton_count=(2); // > 1
+    int colorcounter[7]={0,0,0,0,0,0,0};
+    char temp_board_n[BOARD_SIZE * BOARD_SIZE];
+    char chosencolor = 'A';
+    char best_color_yet = 'A';
+    int best_change = 0;
+    //debut recu
+    for(int k=0; k<7; k++) //chaque couleur
+    {
+        for(int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
+        {
+            temp_board_n[i] = board[i];
+        }
+        colorcounter[k] += board_update_recu(temp_board_n, player, chosencolor);
+        if (colorcounter[k] > best_change)
+        {
+            best_change = colorcounter[k];
+            best_color_yet = 'A' + (char) k;
+        }
+        printf("\n--- %d ---- %c ---\n", colorcounter[k], chosencolor);
+        colorcounter[k] += glouton_recu_count(temp_board_n, player, glouton_count-1);
+
+        chosencolor++;
+    }
+    //fin recu
+    
+    for(int i=1;i<7;i++)
+    {
+        if (colorcounter[i] > best_change)
+        {
+            best_change = colorcounter[i];
+            best_color_yet = 'A' + (char) i;
+        }
+    }
+    return best_color_yet;
+}
+
+
 
 
 char hegemonique(char* board, char player)
@@ -504,7 +544,7 @@ char hegemonique(char* board, char player)
     //------char temp_board[BOARD_SIZE * BOARD_SIZE];
     for(char color = 'A'; color <= 'G'; color++)
     {
-        // on crée un plateau temporaire de test
+        // on cree un plateau temporaire de test
         //------printf("\n----color : %c ------\n", color);
         for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
         {
@@ -525,17 +565,11 @@ char hegemonique(char* board, char player)
     return best_color;
 }
 
-
-
-
-
-
-
 int selection_player()
 {
-	int strategie_joueur=0;
-	
-	while (strategie_joueur>6 || strategie_joueur <1)
+    int strategie_joueur=0;
+    int c;
+	while(strategie_joueur>6 || strategie_joueur <1)
 	{
 		printf("Selectioner le type de joueur :");
 		printf("\n");
@@ -599,7 +633,7 @@ int main(void)
 				break;
 				
 		   case 5 :
-				pointeur_sur_fonction_joueur1 = glouton_2;
+				pointeur_sur_fonction_joueur1 = glouton_n;
 				break;
 				
 			case 6 :
@@ -665,7 +699,7 @@ int main(void)
 					while ((color = getchar()) != '\n' && color!= EOF) {}
 				}
 				print_board(board);
-				printf("l'occupation est de %d %\n",count1/9);
+				printf("l'occupation est de %d %\n",(int)count1/pow(BOARD_SIZE);
 				if (count1>=(BOARD_SIZE*BOARD_SIZE/2))
 				{ 
 					victory=1;
@@ -680,7 +714,7 @@ int main(void)
 					while ((color = getchar()) != '\n' && color!= EOF) {}
 				}
 				print_board(board);
-				printf("l'occupation est de %d %\n",count2/9);
+				printf("l'occupation est de %d %\n",(int)count2/9);
 				if (count2>=(BOARD_SIZE*BOARD_SIZE/2))
 				{ 
 					victory=1;
