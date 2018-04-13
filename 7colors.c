@@ -17,36 +17,36 @@
  */
 // -------- Prototype des fonctions ------------------------------------
 /**
- **************** Fonction gÃ©nÃ©rales************************************
+ **************** Fonction générales************************************
 */
 char rand_a_b(char a, char b);
-//renvoit un carctÃ¨re compris entre a (inclu) et b (exclu)
+//renvoit un carctère compris entre a (inclu) et b (exclu)
 
 char get_cell(char* board, int x, int y);
-//renvoit la couelur se trouvant Ã  la position x,y
+//renvoit la couelur se trouvant à la position x,y
 
 void set_cell(char* board, int x, int y, char color);
-//change la couleur se trouvant Ã  la position x,y
+//change la couleur se trouvant à la position x,y
 
 void generate_aleat_board(char* board);
-// change les couleurs alÃ©atoirement du tableau en entrÃ©e, et met les couleurs des joueurs dans les coins
-// utilise BOARD_SIZE qui doit Ãªtre accessible
+// change les couleurs aléatoirement du tableau en entrée, et met les couleurs des joueurs dans les coins
+// utilise BOARD_SIZE qui doit être accessible
 
 void print_board(char* board);
-// affiche le tableau en entrÃ©e
+// affiche le tableau en entrée
 
 int board_update_recu(char* board, char player, char color);
-// actualise le tableau en entrÃ©e en fonction du joueur et de la couleur jouÃ©e, renvoit le nombre de case modifiÃ©e
+// actualise le tableau en entrée en fonction du joueur et de la couleur jouée, renvoit le nombre de case modifiée
 
 int recursive_update (int position_x, int position_y, char* board, char player, char color);
 // modifie la couleur des cases adjacentes de la case x,y qui sont de la bonne couleur
 
 int get_perimeter_size(char* board, char player);
-// retourne le nombre de case qui forme le pÃ©rimÃ¨tre du joueur
-// utilise la couleur des joueurs (qui doivent Ãªtre accessible)
+// retourne le nombre de case qui forme le périmètre du joueur
+// utilise la couleur des joueurs (qui doivent être accessible)
 
 int bordercolorpresence(char chosencolor, char* board, char player);
-// renvoit 1 si la couleur est prÃ©sente sur les frontiÃ¨res du joueur
+// renvoit 1 si la couleur est présente sur les frontières du joueur
 // renvoit 0 sinon
 
 ******************************Les joueurs*******************************
@@ -56,19 +56,19 @@ int selection_player ();
 
 
 char colorselect(char* board, char player);
-// permet Ã  un joueur huamain de sÃ©lectionner une couleur
+// permet à un joueur huamain de sélectionner une couleur
 
 char alea_computer(char* board, char player);
-// Renvoit le choix du joueur alÃ©atoire classique
+// Renvoit le choix du joueur aléatoire classique
 
 char alea_computer_ameliore(char* board, char player);
-// renvoit le choix du joueur alÃ©atoire amÃ©liorÃ©
+// renvoit le choix du joueur aléatoire amélioré
 
 char choiceglouton(char* board, char player);
 // renvoi le choix du joueur glouton
 
 char hegemonique(char* board, char player);
-// renvoit le choix du joueur hÃ©gÃ©monique
+// renvoit le choix du joueur hégémonique
 
 */
 //------------------ Programme -----------------------------------------
@@ -125,7 +125,7 @@ void print_board(char* board)
 
 int recursive_update (int position_x, int position_y, char* board, char player, char color)
 {
-    // transforme les cases de maniÃ¨e rÃ©cursive (pot de peinture)
+    // transforme les cases de manièe récursive (pot de peinture)
     set_cell(board, position_x,position_y,player);
     int nb_changement = 1;
 	if ((position_x-1)>=0)
@@ -266,6 +266,7 @@ int get_perimeter_size(char* board, char player)
     }
     return perimeter; 
 }
+
 
 
 int bordercolorpresence(char chosencolor, char* board, char player)
@@ -412,6 +413,7 @@ char choiceglouton(char* board, char player)
     return chosencolor;
 }
 
+
 char hegemonique(char* board, char player)
 {
     // implementation du joueur hegemonique (augmentation du perimetre)
@@ -449,7 +451,7 @@ char hegemonique(char* board, char player)
 int selection_player ()
 {
 	int strategie_joueur=1;
-	do 
+	do
 	{
 		printf("Selectioner le type de joueur :");
 		printf("\n");
@@ -461,13 +463,6 @@ int selection_player ()
 	}while(strategie_joueur>6 || strategie_joueur <1);
 	return strategie_joueur;
 }
-
-
-
-
-
-
-
 
 
 /** Program entry point */
@@ -592,7 +587,73 @@ int mainalter(void)
     int victory1 = 0;
     int victory2 = 0;
 
+    int strategie_joueur1=1;
+	int strategie_joueur2=1;
+	strategie_joueur1=selection_player();
+	strategie_joueur2=selection_player();
+	char (*pointeur_sur_fonction_joueur1)(char*,char);
+    char (*pointeur_sur_fonction_joueur2)(char*,char);
+    switch(strategie_joueur1)
+        {
+        case 1 :
+            pointeur_sur_fonction_joueur1 = colorselect;
+            break;
 
+        case 2 :
+            pointeur_sur_fonction_joueur1 = alea_computer;
+            break;
+
+        case 3 :
+			pointeur_sur_fonction_joueur1 = randok;
+			break
+
+        case 4 :
+            pointeur_sur_fonction_joueur1 = glouton;
+            break;
+
+        case 5 :
+            pointeur_sur_fonction_joueur1 = glouton_n;
+            break;
+
+        case 6 :
+            pointeur_sur_fonction_joueur1 = hegemonique;
+            break;
+
+        default :
+            pointeur_sur_fonction_joueur1 = colorselect;
+            break;
+        }
+
+    switch(strategie_joueur2)
+        {
+        case 1 :
+            pointeur_sur_fonction_joueur2 = colorselect;
+            break;
+
+        case 2 :
+            pointeur_sur_fonction_joueur2 = alea_computer;
+            break;
+
+        case 3 :
+			pointeur_sur_fonction_joueur2 = randok;
+			break
+
+        case 4 :
+            pointeur_sur_fonction_joueur2 = glouton;
+            break;
+
+        case 5 :
+            pointeur_sur_fonction_joueur2 = glouton_n;
+            break;
+
+        case 6 :
+            pointeur_sur_fonction_joueur2 = hegemonique;
+            break;
+
+        default :
+            pointeur_sur_fonction_joueur2 = colorselect;
+            break;
+        }
 
     for (int i=0;i<100;i++)
     {
