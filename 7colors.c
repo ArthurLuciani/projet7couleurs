@@ -49,10 +49,11 @@ int bordercolorpresence(char chosencolor, char* board, char player);
 // renvoit 1 si la couleur est présente sur les frontières du joueur
 // renvoit 0 sinon
 
-******************************Les joueurs*******************************
+/*****************************Les joueurs******************************/
 
 int selection_player ();
 // permet de selectionner un type de joueur
+
 
 
 char colorselect(char* board, char player);
@@ -70,8 +71,8 @@ char choiceglouton(char* board, char player);
 char hegemonique(char* board, char player);
 // renvoit le choix du joueur hégémonique
 
-*/
-//------------------ Programme -----------------------------------------
+
+/**------------------ Programme --------------------------------------*/
 
 
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
@@ -213,52 +214,57 @@ int board_update_recu(char* board, char player, char color)
 
 int get_perimeter_size(char* board, char player)
 {
+	char tmp_board[BOARD_SIZE*BOARD_SIZE];
+	for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
+	{
+		tmp_board[i] = board[i];
+	}
  
   int perimeter = 0;
 	for (int i=0; i<BOARD_SIZE; i++)
 	{
 		for (int j=0; j<BOARD_SIZE; j++)
 		{
-			if (get_cell(board,i,j)== player)
+			if (get_cell(tmp_board,i,j)== player)
 			{
                 if ((i-1)>=0) 
                 {
-                    if (get_cell(board,i-1,j)!=P1_COLOR &&
-                        get_cell(board,i-1,j)!=P2_COLOR &&
-                        get_cell(board,i-1,j)!= '0')
+                    if (get_cell(tmp_board,i-1,j)!=P1_COLOR &&
+                        get_cell(tmp_board,i-1,j)!=P2_COLOR &&
+                        get_cell(tmp_board,i-1,j)!= '0')
                     {
                         perimeter += 1;
-                        set_cell(board, i-1, j, '0');
+                        set_cell(tmp_board, i-1, j, '0');
                     }
                 }
                 if ((i+1)< BOARD_SIZE) 
                 {
-                    if (get_cell(board,i+1,j)!=P1_COLOR &&
-                        get_cell(board,i+1,j)!=P2_COLOR && 
-                        get_cell(board,i+1,j)!= '0')
+                    if (get_cell(tmp_board,i+1,j)!=P1_COLOR &&
+                        get_cell(tmp_board,i+1,j)!=P2_COLOR && 
+                        get_cell(tmp_board,i+1,j)!= '0')
                     {
                         perimeter += 1;
-                        set_cell(board, i+1, j, '0');
+                        set_cell(tmp_board, i+1, j, '0');
                     }
                 }
 				if ((j-1)>=0)  
                 {
-                    if (get_cell(board,i,j-1)!=P1_COLOR &&
-                        get_cell(board,i,j-1)!=P2_COLOR && 
-                        get_cell(board,i,j-1)!= '0')
+                    if (get_cell(tmp_board,i,j-1)!=P1_COLOR &&
+                        get_cell(tmp_board,i,j-1)!=P2_COLOR && 
+                        get_cell(tmp_board,i,j-1)!= '0')
                     {
                         perimeter += 1;
-                        set_cell(board, i, j-1, '0');
+                        set_cell(tmp_board, i, j-1, '0');
                     }
                 }
                 if ((j+1)<BOARD_SIZE)
                 {
-                    if (get_cell(board,i,j+1)!=P1_COLOR &&
-                        get_cell(board,i,j+1)!=P2_COLOR && 
-                        get_cell(board,i,j+1)!= '0')
+                    if (get_cell(tmp_board,i,j+1)!=P1_COLOR &&
+                        get_cell(tmp_board,i,j+1)!=P2_COLOR && 
+                        get_cell(tmp_board,i,j+1)!= '0')
                     {
                         perimeter += 1;
-                        set_cell(board, i, j+1, '0');
+                        set_cell(tmp_board, i, j+1, '0');
                     }
                 }              
             }
@@ -330,23 +336,6 @@ int bordercolorpresence(char chosencolor, char* board, char player)
 
 // ------------ Les joueurs --------------------------------------------
 
-
-int selection_player ()
-{
-	int strategie_joueur=1;
-	do 
-	{
-		printf("Selectioner le type de joueur :");
-		printf("\n");
-		printf("1=humain, 2=aleatoire, 3=aleatoire+, 4=glouton, 5=glouton_carre, 6=hegemonique");
-		printf("\n");
-		scanf("%d",&strategie_joueur);
-		printf("\n");
-
-	}while(strategie_joueur>6 || strategie_joueur <1);
-	return strategie_joueur;
-}
-
 char colorselect(char* board, char player)
 {
     // joueur humain
@@ -415,31 +404,31 @@ char choiceglouton(char* board, char player)
 char hegemonique(char* board, char player)
 {
     // implémentation du joueur hegemonique (augmentation du périmètre)
-    int best_perimeter = 0;
-    char best_color = alea_computer(board, player);// couleur par defaut
+    
+    
+    int best_perimeter = get_perimeter_size(board, player);
+    char best_color = choiceglouton(board, player);// couleur par defaut
+	
     int perimeter = 0;
     printf("\n---------------test----------------\n");
     //------char temp_board[BOARD_SIZE * BOARD_SIZE];
     for(char color = 'A'; color <= 'G'; color++)
     {
-		if (bordercolorpresence(color,temp_board,player)!=0)
+        // on crée un plateau temporaire de test
+        //------printf("\n----color : %c ------\n", color);
+        for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
         {
-			// on crée un plateau temporaire de test
-			//------printf("\n----color : %c ------\n", color);
-			for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
-			{
-				temp_board[i] = board[i];
-			}
-			board_update_recu(temp_board, player, color);
-			// detection du perimetre
-			perimeter = get_perimeter_size(temp_board, player);
-			if (perimeter > best_perimeter)
-			{
-				best_perimeter = perimeter;
-				best_color = color;
-				//print_board(temp_board);
-			}
-		}
+            temp_board[i] = board[i];
+        }
+        board_update_recu(temp_board, player, color);
+        // detection du perimetre
+        perimeter = get_perimeter_size(temp_board, player);
+        if (perimeter > best_perimeter)
+        {
+            best_perimeter = perimeter;
+            best_color = color;
+            //print_board(temp_board);
+        }
     }
     // print_board(temp_board);
     printf("\nLa meilleur couleur pour %c est %c pour un perimetre de %d\n",player, best_color, best_perimeter);
@@ -478,17 +467,18 @@ int main(void)
 	   "*****************************************************\n\n"
 	   "Current board state:\n");
 	int victory = 0;
+	int nb_parties=1;
+	int nb_victoire_joueur1 = 0;
+	int nb_victoire_joueur2 = 0;
     int count1 = 1;
     int count2 = 1;
-    int victory_joueur1 = 0;
-    int victory_joueur2 = 0;
+    int vainqueur=0;
     char color;   
 	int strategie_joueur1=1;
 	int strategie_joueur2=1;
 	strategie_joueur1=selection_player();
 	strategie_joueur2=selection_player();
-    generate_aleat_board(board);
-    print_board(board);
+    
     char (*pointeur_sur_fonction_joueur1)(char*,char);
     char (*pointeur_sur_fonction_joueur2)(char*,char);
     switch(strategie_joueur1)
@@ -553,35 +543,53 @@ int main(void)
             break;
         }
     
+    printf("entrer le nombre de partie que vous voulez jouer\n");
+    scanf("%d",&nb_parties);
     
-    
-    while (victory==0)
+    for (int i=0;i<nb_parties-1;i++)
     {
-		color=(*pointeur_sur_fonction_joueur1)(board,P1_COLOR);
-		printf("_%c_ \n",color);
-		count1 += board_update_recu(board, P1_COLOR, color);
-		print_board(board);
-		printf("le nombre de case est %d \n",count1);
-		if (count1>(BOARD_SIZE*BOARD_SIZE/2))
-		{ 
-			victory=1;
+		victory=0;
+		generate_aleat_board(board);
+		count1 = 1;
+		count2 = 1;
+		while (victory==0)
+		{
+			color=(*pointeur_sur_fonction_joueur1)(board,P1_COLOR);
+			printf("_%c_ \n",color);
+			count1 += board_update_recu(board, P1_COLOR, color);
+			print_board(board);
+			printf("le nombre de case est %d \n",count1);
+			if (count1>(BOARD_SIZE*BOARD_SIZE/2))
+			{ 
+				victory=1;
+				nb_victoire_joueur1 +=1;
+			}
+			color=(*pointeur_sur_fonction_joueur2)(board,P2_COLOR);
+			printf("_%c_ \n",color);
+			count2 += board_update_recu(board, P2_COLOR, color);
+			print_board(board);
+			printf("le nombre de case est %d \n",count2);
+			if (count2>(BOARD_SIZE*BOARD_SIZE/2))
+			{ 
+				victory=1;
+				nb_victoire_joueur2 +=1;;
+			}
 		}
-		color=(*pointeur_sur_fonction_joueur2)(board,P2_COLOR);
-		printf("_%c_ \n",color);
-		count2 += board_update_recu(board, P2_COLOR, color);
-		print_board(board);
-		printf("le nombre de case est %d \n",count2);
-		if (count2>(BOARD_SIZE*BOARD_SIZE/2))
-		{ 
-			victory=1;
-		}
+		
 	}
-    
-    
+	if (nb_victoire_joueur1> nb_victoire_joueur2)
+	{
+		vainqueur=1;
+	} else if (nb_victoire_joueur2>nb_victoire_joueur1)
+	{
+		vainqueur=2;
+	}
+    printf("le vainqueur est le joueur %d \n",vainqueur);
+    printf("Avec %d victoires contre %d victoire",nb_victoire_joueur1,nb_victoire_joueur2);
     return 0; // Everything went well
 }
 
-int mainalter(void)
+/*int mainalter(void)
 {
     //main alternatif : simulation de 100 parties
     srand(time(NULL));
@@ -603,8 +611,8 @@ int mainalter(void)
         int count1 = 1;
         int count2 = 1;
         char color;
-        /*char (*players_tab[2])(char*);
-        select_players(players_tab);*/
+        char (*players_tab[2])(char*);
+        select_players(players_tab);
         int k = 0;
 
         while (k<40)
@@ -646,4 +654,5 @@ int mainalter(void)
 
     return 0; // Everything went well
 }
+*/
 
