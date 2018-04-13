@@ -49,7 +49,10 @@ int bordercolorpresence(char chosencolor, char* board, char player);
 // renvoit 1 si la couleur est présente sur les frontières du joueur
 // renvoit 0 sinon
 
-******************************Les joueurs*******************************
+int glouton_recu_count(char board[], char player, int glouton_count);
+// renvoit le nombre de changement maximum pour (glouton_count) coups
+
+//******************************Les joueurs*******************************
 
 int selection_player ();
 // permet de selectionner un type de joueur
@@ -67,10 +70,13 @@ char alea_computer_ameliore(char* board, char player);
 char choiceglouton(char* board, char player);
 // renvoi le choix du joueur glouton
 
+char glouton_n(char board[], char player);
+// renvoi le choix du joueur glouton prevoyant
+
 char hegemonique(char* board, char player);
 // renvoit le choix du joueur hégémonique
 
-*/
+
 //------------------ Programme -----------------------------------------
 
 
@@ -325,28 +331,47 @@ int bordercolorpresence(char chosencolor, char* board, char player)
 	}
 	return colorpresence;
 }
-	
+
+int glouton_recu_count(char board[], char player, int glouton_count)
+{
+
+    int colorcounter[7]={0,0,0,0,0,0,0};
+    char chosencolor='A';
+    char temp_board_n[7][BOARD_SIZE * BOARD_SIZE];
+
+    for(int k=0; k<7; k++) //chaque couleur
+    {
+        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
+        {
+            temp_board_n[k][i]=board[i];
+        }
+
+        colorcounter[k]+=board_update_recu(temp_board_n[k], player, chosencolor);
+
+        glouton_count--;
+        if(glouton_count>0)
+        {
+            colorcounter[k] += glouton_recu_count(temp_board_n[k], player, glouton_count);
+        }
+
+        chosencolor+=1;
+    }
+
+    for(int i=1;i<7;i++)
+    {
+        if (colorcounter[0]<colorcounter[i])
+        {
+            colorcounter[0]=colorcounter[i];
+        }
+    }
+
+    return(colorcounter[0]);
+}
 
 
 
 // ------------ Les joueurs --------------------------------------------
 
-
-int selection_player ()
-{
-	int strategie_joueur=1;
-	do 
-	{
-		printf("Selectioner le type de joueur :");
-		printf("\n");
-		printf("1=humain, 2=aleatoire, 3=aleatoire+, 4=glouton, 5=glouton_carre, 6=hegemonique");
-		printf("\n");
-		scanf("%d",&strategie_joueur);
-		printf("\n");
-
-	}while(strategie_joueur>6 || strategie_joueur <1);
-	return strategie_joueur;
-}
 
 char colorselect(char* board, char player)
 {
@@ -414,6 +439,34 @@ char choiceglouton(char* board, char player)
 }
 
 
+
+
+
+char glouton_n(char board[], char player)
+{
+    int glouton_count=(2-1);
+    int colorcounter[7]={0,0,0,0,0,0,0};
+
+    //début recu
+    for(int k=0; k<7; k++) //chaque couleur
+    {
+        colorcounter[k]=glouton_recu_count(board, player, glouton_count);
+    }
+    //fin recu
+
+    for(int i=1;i<7;i++)
+    {
+        if (colorcounter[0]<colorcounter[i])
+        {
+            colorcounter[0]=colorcounter[i];
+        }
+    }
+    return colorcounter[0];
+}
+//WIP end
+
+
+
 char hegemonique(char* board, char player)
 {
     // implementation du joueur hegemonique (augmentation du perimetre)
@@ -475,8 +528,6 @@ int main(void)
 	int victory = 0;
     int count1 = 1;
     int count2 = 1;
-    int victory_joueur1 = 0;
-    int victory_joueur2 = 0;
     char color;   
 	int strategie_joueur1=1;
 	int strategie_joueur2=1;
@@ -604,11 +655,11 @@ int mainalter(void)
             break;
 
         case 3 :
-			pointeur_sur_fonction_joueur1 = randok;
-			break
+			pointeur_sur_fonction_joueur1 = alea_computer_ameliore;
+			break;
 
         case 4 :
-            pointeur_sur_fonction_joueur1 = glouton;
+            pointeur_sur_fonction_joueur1 = choiceglouton;
             break;
 
         case 5 :
@@ -635,11 +686,11 @@ int mainalter(void)
             break;
 
         case 3 :
-			pointeur_sur_fonction_joueur2 = randok;
-			break
+			pointeur_sur_fonction_joueur2 = alea_computer_ameliore;
+			break;
 
         case 4 :
-            pointeur_sur_fonction_joueur2 = glouton;
+            pointeur_sur_fonction_joueur2 = choiceglouton;
             break;
 
         case 5 :
@@ -659,8 +710,6 @@ int mainalter(void)
     {
         generate_aleat_board(board);
         print_board(board);
-
-        int victory = 0;
         int count1 = 1;
         int count2 = 1;
         char color;
