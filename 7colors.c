@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
 #define P1_COLOR '.'
@@ -67,7 +68,7 @@ char alea_computer(char* board, char player);
 char alea_computer_ameliore(char* board, char player);
 // renvoit le choix du joueur aléatoire amélioré
 
-char choiceglouton(char* board, char player);
+char glouton(char* board, char player);
 // renvoi le choix du joueur glouton
 
 char glouton_2(char board[], char player);
@@ -78,7 +79,8 @@ char glouton_n(char board[], char player);
 
 char hegemonique(char* board, char player);
 // renvoit le choix du joueur hégémonique
-
+char hybride (char* board, char player);
+// renvoit le choix du joueur hybride
 
 //------------------ Programme -----------------------------------------
 
@@ -371,14 +373,13 @@ int glouton_recu_count(char* board, char player, int glouton_count)
 char colorselect(char* board, char player)
 {
     // joueur humain
-    char color, c;
-    do
-    {
+    char color;
+    while(color < 'A' || color > 'G')
+        {
         printf("Selectionnez une couleur : ");
         printf("\n");
         scanf("%c", &color);
-        while ((c = getchar()) != '\n' && c != EOF) {} //on vide le buffer
-    }while(color < 'A' || color > 'G');
+       	}
     return color;
 }
 
@@ -401,7 +402,7 @@ char alea_computer_ameliore(char* board, char player)
 }
 
 
-char choiceglouton(char* board, char player)
+char glouton(char* board, char player)
 {
     int colorcounter[7]={0,0,0,0,0,0,0};
     int colornb = 0;
@@ -484,6 +485,14 @@ char glouton_2(char board[], char player)
             chosencolor='A'+i;
         }
     }
+    for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++) // init tableau
+        {
+            temp_board[i]=board[i];
+        }
+    if (board_update_recu (temp_board,player, chosencolor)==0)
+    {
+		chosencolor=glouton(board,player);
+	}
 
     return(chosencolor);
 }
@@ -510,7 +519,7 @@ char glouton_n(char* board, char player)
             best_change = colorcounter[k];
             best_color_yet = 'A' + (char) k;
         }
-        printf("\n--- %d ---- %c ---\n", colorcounter[k], chosencolor);
+        //printf("\n--- %d ---- %c ---\n", colorcounter[k], chosencolor);
         colorcounter[k] += glouton_recu_count(temp_board_n, player, glouton_count-1);
 
         chosencolor++;
@@ -537,7 +546,7 @@ char hegemonique(char* board, char player)
 
 
     int best_perimeter = get_perimeter_size(board, player);
-    char best_color = choiceglouton(board, player);// couleur par defaut
+    char best_color = glouton(board, player);// couleur par defaut
 
     int perimeter = 0;
     printf("\n---------------test----------------\n");
@@ -565,20 +574,47 @@ char hegemonique(char* board, char player)
     return best_color;
 }
 
+
+
+int changement = 0;
+char hybride (char* board, char player)
+{
+	char color='A';
+//	static int changement;
+	int perimeter=get_perimeter_size(board, player);
+	
+	if (changement==1)
+	{
+		color=glouton_2(board,player);
+	} else 	{
+		color=hegemonique(board,player);
+		if(get_perimeter_size(board, player)<=perimeter)
+		{
+			changement = 1;
+		}
+	}
+	return color;
+}
+
+
+
+
+
+
+
 int selection_player()
 {
     int strategie_joueur=0;
-    int c;
-	while(strategie_joueur>6 || strategie_joueur <1)
+    while(strategie_joueur>7 || strategie_joueur <1)
 	{
 		printf("Selectioner le type de joueur :");
 		printf("\n");
-		printf("1=humain, 2=aleatoire, 3=aleatoire+, 4=glouton, 5=glouton_carre, 6=hegemonique");
+		printf("1=humain, 2=aleatoire, 3=aleatoire+, 4=glouton, 5=glouton_carre, 6=hegemonique, 7=hybride");
 		printf("\n");
 		scanf("%d",&strategie_joueur);
 		printf("\n");
 		
-		if (strategie_joueur>6 || strategie_joueur <1)
+		if (strategie_joueur>7 || strategie_joueur <1)
 		{
 			while ((strategie_joueur=getchar()) != '\n' && strategie_joueur!= EOF) {}
 		}
@@ -629,7 +665,7 @@ int main(void)
 				break;
 				
 			case 4 :
-				pointeur_sur_fonction_joueur1 = choiceglouton;
+				pointeur_sur_fonction_joueur1 = glouton;
 				break;
 				
 		   case 5 :
@@ -638,6 +674,9 @@ int main(void)
 				
 			case 6 :
 				pointeur_sur_fonction_joueur1 = hegemonique;
+				break;
+			case 7 :
+				pointeur_sur_fonction_joueur2 = hegemonique;
 				break;
 				
 			default :
@@ -660,7 +699,7 @@ int main(void)
 				break;
 				
 			case 4 :
-				pointeur_sur_fonction_joueur2 = choiceglouton;
+				pointeur_sur_fonction_joueur2 = glouton;
 				break;
 				
 			case 5 :
@@ -669,6 +708,10 @@ int main(void)
 				
 			case 6 :
 				pointeur_sur_fonction_joueur2 = hegemonique;
+				break;
+				
+			case 7:
+				pointeur_sur_fonction_joueur2 = hybride;
 				break;
 				
 			default :
@@ -686,8 +729,8 @@ int main(void)
 			generate_aleat_board(board);
 			count1 = 1;
 			count2 = 1;
-			print_board(board);
-
+			//print_board(board);
+			changement = 0;
 			while (victory==0)
 			{
 				printf("Joueur 1 rentrez la couleur que vous souhaitez jouer ");
@@ -698,8 +741,8 @@ int main(void)
 				{
 					while ((color = getchar()) != '\n' && color!= EOF) {}
 				}
-				print_board(board);
-				printf("l'occupation est de %d %\n",(int)count1/pow(BOARD_SIZE);
+				//print_board(board);
+				printf("l'occupation est de %d % \n",(int)(count1*100/pow(BOARD_SIZE,2)));
 				if (count1>=(BOARD_SIZE*BOARD_SIZE/2))
 				{ 
 					victory=1;
@@ -707,19 +750,20 @@ int main(void)
 				}
 				printf("Joueur 2 rentrez la couleur que vous souhaitez jouer ");
 				color=(*pointeur_sur_fonction_joueur2)(board,P2_COLOR);
-				printf("_%c_\n ",color);
+				printf("_%c_\n",color);
 				count2 += board_update_recu(board, P2_COLOR, color);
 				if (strategie_joueur2==1)
 				{
 					while ((color = getchar()) != '\n' && color!= EOF) {}
 				}
-				print_board(board);
-				printf("l'occupation est de %d %\n",(int)count2/9);
+				//print_board(board);
+				printf("l'occupation est de %d % \n",(int)(count2*100/pow(BOARD_SIZE,2)));
 				if (count2>=(BOARD_SIZE*BOARD_SIZE/2))
 				{ 
 					victory=1;
-					nb_victoire_joueur2 +=1;;
+					nb_victoire_joueur2 +=1;
 				}
+				//sleep(1);
 			}
 			
 		}
@@ -732,7 +776,7 @@ int main(void)
 		}
 		printf("le vainqueur est le joueur %d \n",vainqueur);
 		printf("Avec %d victoires contre %d victoires",nb_victoire_joueur1,nb_victoire_joueur2);
-		printf("Voulez vous relancer une partie ?\n 1=Oui, 0=Non");
+		printf("Voulez vous relancer une partie ?\n 1=Oui, 0=Non \n");
 		scanf("%d",&again);
 	}
     return 0; // Everything went well
