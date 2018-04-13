@@ -334,9 +334,10 @@ int bordercolorpresence(char chosencolor, char* board, char player)
 
 int selection_player ()
 {
-	int strategie_joueur=1;
+	int strategie_joueur;
 	do 
 	{
+		strategie_joueur=0;
 		printf("Selectioner le type de joueur :");
 		printf("\n");
 		printf("1=humain, 2=aleatoire, 3=aleatoire+, 4=glouton, 5=glouton_carre, 6=hegemonique");
@@ -537,9 +538,12 @@ int main(void)
     printf("entrer le nombre de partie que vous voulez jouer\n");
     scanf("%d",&nb_parties);
     
-    for (int i;i<nb_parties+1;i++)
+    for (int i=0;i<nb_parties-1;i++)
     {
+		victory=0;
 		generate_aleat_board(board);
+		count1 = 1;
+		count2 = 1;
 		while (victory==0)
 		{
 			color=(*pointeur_sur_fonction_joueur1)(board,P1_COLOR);
@@ -562,7 +566,6 @@ int main(void)
 				victory=1;
 				nb_victoire_joueur2 +=1;;
 			}
-			sleep(1);
 		}
 		
 	}
@@ -574,6 +577,7 @@ int main(void)
 		vainqueur=2;
 	}
     printf("le vainqueur est le joueur %d \n",vainqueur);
+    printf("Avec %d victoires contre %d victoire",nb_victoire_joueur1,nb_victoire_joueur2);
     return 0; // Everything went well
 }
 
