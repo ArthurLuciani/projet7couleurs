@@ -684,7 +684,7 @@ char choiceglouton(char* board, char player)
 
 char hegemonique(char* board, char player)
 {
-    // implémentation du joueur hegemonique (augmentation du périmètre)
+    // implementation du joueur hegemonique (augmentation du perimetre)
     int best_perimeter = 0;
     char best_color = alea_computer(board, player);// couleur par defaut
     int perimeter = 0;
@@ -694,7 +694,7 @@ char hegemonique(char* board, char player)
     {
 		if (bordercolorpresence(color,temp_board,player)!=0)
         {
-			// on crée un plateau temporaire de test
+			// on cree un plateau temporaire de test
 			//------printf("\n----color : %c ------\n", color);
 			for (int i=0; i < BOARD_SIZE*BOARD_SIZE; i++)
 			{
