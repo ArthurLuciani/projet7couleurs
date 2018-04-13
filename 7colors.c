@@ -49,7 +49,10 @@ int bordercolorpresence(char chosencolor, char* board, char player);
 // renvoit 1 si la couleur est présente sur les frontières du joueur
 // renvoit 0 sinon
 
-/*****************************Les joueurs******************************/
+int glouton_recu_count(char board[], char player, int glouton_count);
+// renvoit le nombre de changement maximum pour (glouton_count) coups
+
+//******************************Les joueurs*******************************
 
 int selection_player ();
 // permet de selectionner un type de joueur
@@ -68,11 +71,14 @@ char alea_computer_ameliore(char* board, char player);
 char choiceglouton(char* board, char player);
 // renvoi le choix du joueur glouton
 
+char glouton_n(char board[], char player);
+// renvoi le choix du joueur glouton prevoyant
+
 char hegemonique(char* board, char player);
 // renvoit le choix du joueur hégémonique
 
 
-/**------------------ Programme --------------------------------------*/
+//------------------ Programme -----------------------------------------
 
 
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
@@ -274,6 +280,7 @@ int get_perimeter_size(char* board, char player)
 }
 
 
+
 int bordercolorpresence(char chosencolor, char* board, char player)
 {
 	int colorpresence=0;
@@ -332,9 +339,46 @@ int bordercolorpresence(char chosencolor, char* board, char player)
 }
 	
 
+int glouton_recu_count(char board[], char player, int glouton_count)
+{
+
+    int colorcounter[7]={0,0,0,0,0,0,0};
+    char chosencolor='A';
+    char temp_board_n[7][BOARD_SIZE * BOARD_SIZE];
+
+    for(int k=0; k<7; k++) //chaque couleur
+    {
+        for(int i=0; i<BOARD_SIZE*BOARD_SIZE;i++)
+        {
+            temp_board_n[k][i]=board[i];
+        }
+
+        colorcounter[k]+=board_update_recu(temp_board_n[k], player, chosencolor);
+
+        glouton_count--;
+        if(glouton_count>0)
+        {
+            colorcounter[k] += glouton_recu_count(temp_board_n[k], player, glouton_count);
+        }
+
+        chosencolor+=1;
+    }
+
+    for(int i=1;i<7;i++)
+    {
+        if (colorcounter[0]<colorcounter[i])
+        {
+            colorcounter[0]=colorcounter[i];
+        }
+    }
+
+    return(colorcounter[0]);
+}
+
 
 
 // ------------ Les joueurs --------------------------------------------
+
 
 char colorselect(char* board, char player)
 {
@@ -401,6 +445,35 @@ char choiceglouton(char* board, char player)
     return chosencolor;
 }
 
+
+
+
+
+char glouton_n(char board[], char player)
+{
+    int glouton_count=(2-1);
+    int colorcounter[7]={0,0,0,0,0,0,0};
+
+    //début recu
+    for(int k=0; k<7; k++) //chaque couleur
+    {
+        colorcounter[k]=glouton_recu_count(board, player, glouton_count);
+    }
+    //fin recu
+
+    for(int i=1;i<7;i++)
+    {
+        if (colorcounter[0]<colorcounter[i])
+        {
+            colorcounter[0]=colorcounter[i];
+        }
+    }
+    return colorcounter[0];
+}
+//WIP end
+
+
+
 char hegemonique(char* board, char player)
 {
     // implémentation du joueur hegemonique (augmentation du périmètre)
@@ -450,13 +523,6 @@ int selection_player ()
 	}while(strategie_joueur>6 || strategie_joueur <1);
 	return strategie_joueur;
 }
-
-
-
-
-
-
-
 
 
 /** Program entry point */
@@ -588,71 +654,3 @@ int main(void)
     printf("Avec %d victoires contre %d victoire",nb_victoire_joueur1,nb_victoire_joueur2);
     return 0; // Everything went well
 }
-
-/*int mainalter(void)
-{
-    //main alternatif : simulation de 100 parties
-    srand(time(NULL));
-    printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
-	   "*****************************************************\n\n"
-	   "Current board state:\n");
-
-    int victory1 = 0;
-    int victory2 = 0;
-
-
-
-    for (int i=0;i<100;i++)
-    {
-        generate_aleat_board(board);
-        print_board(board);
-
-        int victory = 0;
-        int count1 = 1;
-        int count2 = 1;
-        char color;
-        char (*players_tab[2])(char*);
-        select_players(players_tab);
-        int k = 0;
-
-        while (k<40)
-        {
-            k++;
-            printf("Tour %d J1 :\n",k);
-            //
-            color=hegemonique(board, P1_COLOR);
-            //
-            printf("_%c_ \n",color);
-            count1 += board_update_recu(board, P1_COLOR, color);
-            print_board(board);
-            printf("le nombre de case est %d \n",count1);
-            if (count1>(BOARD_SIZE*BOARD_SIZE/2))
-            {
-                victory1+=1;
-                break;
-            }
-
-            printf("Tour %d J2 :\n",k);
-            //
-            color = hegemonique(board, P2_COLOR);
-            //
-            printf("_%c_ \n",color);
-            count2 += board_update_recu(board, P2_COLOR, color);
-            print_board(board);
-            printf("le nombre de case est %d \n",count2);
-            if (count2>(BOARD_SIZE*BOARD_SIZE/2))
-            {
-                victory2+=1;
-                break;
-            }
-            //sleep(1);
-        }
-    }
-
-    printf("Victoires du joueur 1 : %d\nVictoires du joueur 2 : %d\n", victory1, victory2);
-    sleep(5);
-
-    return 0; // Everything went well
-}
-*/
-
