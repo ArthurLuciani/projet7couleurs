@@ -21,67 +21,93 @@
 /**
  **************** Fonction générales************************************
 */
+
+
+/* renvoit un carctère compris entre a (inclu) et b (exclu)
+ * @param a : le premier caractère (borne inférieure)
+ * @param b : le deuxième caractère (borne supérieure)
+ * @return : un caractère
+ */
 char rand_a_b(char a, char b);
-//renvoit un carctère compris entre a (inclu) et b (exclu)
 
-char get_cell(char* board, int x, int y);
+
 //renvoit la couelur se trouvant à la position x,y
+char get_cell(char* board, int x, int y);
 
-void set_cell(char* board, int x, int y, char color);
+
 //change la couleur se trouvant à la position x,y
+void set_cell(char* board, int x, int y, char color);
 
-void generate_aleat_board(char* board);
+
 // change les couleurs aléatoirement du tableau en entrée, et met les couleurs des joueurs dans les coins
 // utilise BOARD_SIZE qui doit être accessible
+void generate_aleat_board(char* board);
 
-void print_board(char* board);
+
 // affiche le tableau en entrée
+void print_board(char* board);
 
-int board_update_recu(char* board, char player, char color);
+
 // actualise le tableau en entrée en fonction du joueur et de la couleur jouée, renvoit le nombre de case modifiée
+int board_update_recu(char* board, char player, char color);
 
-int recursive_update (int position_x, int position_y, char* board, char player, char color);
+
 // modifie la couleur des cases adjacentes de la case x,y qui sont de la bonne couleur
+int recursive_update (int position_x, int position_y, char* board, char player, char color);
 
-int get_perimeter_size(char* board, char player);
+
 // retourne le nombre de case qui forme le périmètre du joueur
 // utilise la couleur des joueurs (qui doivent être accessible)
+int get_perimeter_size(char* board, char player);
 
-int bordercolorpresence(char chosencolor, char* board, char player);
+
 // renvoit 1 si la couleur est présente sur les frontières du joueur
 // renvoit 0 sinon
+int bordercolorpresence(char chosencolor, char* board, char player);
 
-int glouton_recu_count(char board[], char player, int glouton_count);
+
 // renvoit le nombre de changement maximum pour (glouton_count) coups
+int glouton_recu_count(char board[], char player, int glouton_count);
+
 
 //******************************Les joueurs*******************************
 
-int selection_player ();
+
 // permet de selectionner un type de joueur
+int selection_player();
 
 
-char colorselect(char* board, char player);
 // permet à un joueur huamain de sélectionner une couleur
+char colorselect(char* board, char player);
 
-char alea_computer(char* board, char player);
+
 // Renvoit le choix du joueur aléatoire classique
+char alea_computer(char* board, char player);
 
-char alea_computer_ameliore(char* board, char player);
+
 // renvoit le choix du joueur aléatoire amélioré
+char alea_computer_ameliore(char* board, char player);
 
-char glouton(char* board, char player);
+
 // renvoi le choix du joueur glouton
+char glouton(char* board, char player);
 
+
+// renvoi le choix du joueur glouton prevoyant
 char glouton_2(char board[], char player);
-// renvoi le choix du joueur glouton prevoyant
 
+
+// renvoi le choix du joueur glouton prevoyant
 char glouton_n(char board[], char player);
-// renvoi le choix du joueur glouton prevoyant
 
-char hegemonique(char* board, char player);
+
 // renvoit le choix du joueur hégémonique
-char hybride (char* board, char player);
+char hegemonique(char* board, char player);
+
+
 // renvoit le choix du joueur hybride
+char hybride (char* board, char player);
+
 
 
 char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
