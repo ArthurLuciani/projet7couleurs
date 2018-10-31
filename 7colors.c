@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <math.h>
 
 /* We want a 30x30 board game by default */
 #define BOARD_SIZE 30
@@ -742,7 +743,7 @@ int main(void)
 					while ((color = getchar()) != '\n' && color!= EOF) {}
 				}
 				//print_board(board);
-				printf("l'occupation est de %d % \n",(int)(count1*100/pow(BOARD_SIZE,2)));
+				printf("l'occupation est de %d %% \n",(int)(count1*100/pow(BOARD_SIZE,2)));
 				if (count1>=(BOARD_SIZE*BOARD_SIZE/2))
 				{ 
 					victory=1;
@@ -757,7 +758,7 @@ int main(void)
 					while ((color = getchar()) != '\n' && color!= EOF) {}
 				}
 				//print_board(board);
-				printf("l'occupation est de %d % \n",(int)(count2*100/pow(BOARD_SIZE,2)));
+				printf("l'occupation est de %d %% \n",(int)(count2*100/pow(BOARD_SIZE,2)));
 				if (count2>=(BOARD_SIZE*BOARD_SIZE/2))
 				{ 
 					victory=1;
