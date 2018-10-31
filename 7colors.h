@@ -1,3 +1,5 @@
+#ifndef COLORS_H
+#define COLORS_H
 /* Template of the 7 wonders of the world of the 7 colors assigment. */
 
 #include <stdio.h>     /* printf */
@@ -6,10 +8,7 @@
 #include <unistd.h>
 #include <math.h>
 
-/* We want a 30x30 board game by default */
-#define BOARD_SIZE 30
-#define P1_COLOR '.'
-#define P2_COLOR '*'
+
 
 /** Represent the actual current board game
  *
@@ -108,7 +107,4 @@ char hegemonique(char* board, char player);
 // renvoit le choix du joueur hybride
 char hybride (char* board, char player);
 
-
-
-char board[BOARD_SIZE * BOARD_SIZE] = { 0 }; // Filled with zeros
-char temp_board[BOARD_SIZE * BOARD_SIZE];
+#endif

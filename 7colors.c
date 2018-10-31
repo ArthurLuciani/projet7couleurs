@@ -1,4 +1,5 @@
 #include "7colors.h"
+#include "constantes.h"
 
 char rand_a_b(char a, char b)
 {
@@ -38,9 +39,21 @@ void generate_aleat_board(char* board)
 void print_board(char* board)
 {
     int i, j;
+    char c;
     for (i = 0; i < BOARD_SIZE; i++) {
         for (j = 0; j < BOARD_SIZE; j++) {
-            printf("%c ", get_cell(board, i, j));
+            c = get_cell(board, i, j);
+            switch(c)
+            {
+                case 'A': printf(RED     "%c "   RESET, c); break;
+                case 'B': printf(GREEN   "%c "   RESET, c); break;
+                case 'C': printf(YELLOW  "%c "   RESET, c); break;
+                case 'D': printf(BLUE    "%c "   RESET, c); break;
+                case 'E': printf(MAGENTA "%c "   RESET, c); break;
+                case 'F': printf(CYAN    "%c "   RESET, c); break;
+                default: printf("%c ", c); break;
+            }
+            
         }
         printf("\n");
     }
@@ -488,7 +501,7 @@ char hegemonique(char* board, char player)
 
 
 
-int changement = 0;
+
 char hybride (char* board, char player)
 {
 	char color='A';
