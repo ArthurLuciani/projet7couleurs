@@ -1,5 +1,9 @@
+#include <ncurses.h>
+
 #include "7colors.h"
 #include "constantes.h"
+
+
 
 char rand_a_b(char a, char b)
 {
@@ -45,17 +49,20 @@ void print_board(char* board)
             c = get_cell(board, i, j);
             switch(c)
             {
-                case 'A': printf(RED     "%c "   RESET, c); break;
-                case 'B': printf(GREEN   "%c "   RESET, c); break;
-                case 'C': printf(YELLOW  "%c "   RESET, c); break;
-                case 'D': printf(BLUE    "%c "   RESET, c); break;
-                case 'E': printf(MAGENTA "%c "   RESET, c); break;
-                case 'F': printf(CYAN    "%c "   RESET, c); break;
-                default: printf("%c ", c); break;
+                /*
+                case 'A': printw(RED     "%c "   RESET, c); break;
+                case 'B': printw(GREEN   "%c "   RESET, c); break;
+                case 'C': printw(YELLOW  "%c "   RESET, c); break;
+                case 'D': printw(BLUE    "%c "   RESET, c); break;
+                case 'E': printw(MAGENTA "%c "   RESET, c); break;
+                case 'F': printw(CYAN    "%c "   RESET, c); break;
+                */
+                printw("%c ", c); break;
+                default: printw("%c ", c); break;
             }
             
         }
-        printf("\n");
+        printw("\n");
     }
 }
 
@@ -301,9 +308,9 @@ char colorselect(char* board, char player)
     char color;
     while(color < 'A' || color > 'G')
         {
-        printf("Selectionnez une couleur : ");
-        printf("\n");
-        scanf("%c", &color);
+        //printf("Selectionnez une couleur : ");
+        //printf("\n");
+            color = getch();
        	}
     return color;
 }
@@ -495,7 +502,7 @@ char hegemonique(char* board, char player)
         }
     }
     // print_board(temp_board);
-    printf("\nLa meilleur couleur pour %c est %c pour un perimetre de %d\n",player, best_color, best_perimeter);
+    //printf("\nLa meilleur couleur pour %c est %c pour un perimetre de %d\n",player, best_color, best_perimeter);
     return best_color;
 }
 
@@ -550,29 +557,46 @@ int selection_player()
 
 
 /** Program entry point */
-int main(void)
+int main(int argc, char *argv[])
 {
-	int again=1;
-	while (again==1)
+    int DEBUG_MODE;
+    int again = 1;
+    if (argc > 1)
     {
-		again=0;
+        DEBUG_MODE = 1;
+    }
+    else
+    {
+        DEBUG_MODE = 0;
+    }
+	while (again == 1)
+    {
+		again = 0;
 		srand(time(NULL));
 		printf("\n\nWelcome to the 7 wonders of the world of the 7 colors\n"
 		   "*****************************************************\n\n"
 		   "Current board state:\n");
 		int victory = 0;
-		int nb_parties=1;
+		int nb_parties = 1;
 		int nb_victoire_joueur1 = 0;
 		int nb_victoire_joueur2 = 0;
 		int count1 = 1;
 		int count2 = 1;
-		int vainqueur=0;
+		int vainqueur = 0;
 		char color;   
-		int strategie_joueur1=1;
-		int strategie_joueur2=1;
-		strategie_joueur1=selection_player();
-		strategie_joueur2=selection_player();
-		
+		int strategie_joueur1 = 1;
+		int strategie_joueur2 = 1;
+        if (!DEBUG_MODE)
+        {
+            strategie_joueur1 = selection_player();
+            strategie_joueur2 = selection_player();
+        }
+        else
+        {
+            // debug mod
+            strategie_joueur1 = 1;
+            strategie_joueur2 = 2;
+        }
 		char (*pointeur_sur_fonction_joueur1)(char*,char);
 		char (*pointeur_sur_fonction_joueur2)(char*,char);
 		switch(strategie_joueur1)
@@ -650,30 +674,40 @@ int main(void)
 		
 		for (int i=0;i<nb_parties;i++)
 		{
-			victory=0;
+            initscr();
+            if(has_colors() == FALSE)
+            {	
+                endwin();
+                printf("Your terminal does not support color\n");
+                exit(1);
+            }
+            start_color();			/* Start color 			*/
+            noecho();
+
+			victory = 0;
 			generate_aleat_board(board);
 			count1 = 1;
 			count2 = 1;
 			changement = 0;
 			while (victory==0)
 			{
-				printf("Joueur 1 rentrez la couleur que vous souhaitez jouer ");
+				printw("Joueur 1 rentrez la couleur que vous souhaitez jouer ");
 				color=(*pointeur_sur_fonction_joueur1)(board,P1_COLOR);
-				printf("_%c_ \n",color);
+				printw("_%c_ \n",color);
 				count1 += board_update_recu(board, P1_COLOR, color);
 				if (strategie_joueur1==1)
 				{
-					while ((color = getchar()) != '\n' && color!= EOF) {}
+					//while ((color = getchar()) != '\n' && color!= EOF) {}
 				}
-				printf("l'occupation est de %d %% \n",(int)(count1*100/pow(BOARD_SIZE,2)));
+				printw("l'occupation est de %d %% \n",(int)(count1*100/pow(BOARD_SIZE,2)));
 				if (count1>=(BOARD_SIZE*BOARD_SIZE/2))
 				{ 
 					victory=1;
 					nb_victoire_joueur1 +=1;
 				}
-				printf("Joueur 2 rentrez la couleur que vous souhaitez jouer ");
+				printw("Joueur 2 rentrez la couleur que vous souhaitez jouer ");
 				color=(*pointeur_sur_fonction_joueur2)(board,P2_COLOR);
-				printf("_%c_\n",color);
+				printw("_%c_\n",color);
 				count2 += board_update_recu(board, P2_COLOR, color);
 				if (strategie_joueur2==1)
 				{
@@ -681,15 +715,18 @@ int main(void)
 				}
                 if (strategie_joueur1 == 1)
                 {
+                    clear();
+                    refresh();
                     print_board(board);
                 }
-				printf("l'occupation est de %d %% \n",(int)(count2*100/pow(BOARD_SIZE,2)));
+				printw("l'occupation est de %d %% \n",(int)(count2*100/pow(BOARD_SIZE,2)));
 				if (count2>=(BOARD_SIZE*BOARD_SIZE/2))
 				{ 
 					victory=1;
 					nb_victoire_joueur2 +=1;
 				}
 				//sleep(1);
+                endwin();
 			}
 			
 		}
